@@ -32,7 +32,7 @@ If you need a point and click product, this is not the tool for you.
 
 WASP is a big data framework that allows you to not waste time with devops architectures and integrating different components. WASP lets you focus on your data, business logic and algorithms, without worrying about tipical big data problems like:
 
-- at least once delivery !!!!! exactly once?
+- at least once or exactly once delivery
 - periodically training a machine learning model
 - publishing your results in real time, to be reactive
 - applying schemas to unstructured data
@@ -120,7 +120,6 @@ WASP is written in Scala, and the build is managed with SBT.
 
 The recommended development environment is Linux; developing on Windows or MacOS is certainly possible, but is not supported, sorry about that!
 
-!!!!! spark-solr?
 
 The steps to getting WASP up and running for development are pretty simple:
 - Clone this repository:
