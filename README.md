@@ -85,6 +85,8 @@ Glossary
 Services
 -------------
 
+[Components](diagrams/components.PNG)
+
 ### Kafka
 
 Kafka is the central element of this architecture blue print.
@@ -105,7 +107,7 @@ WASP supports running Spark in three different ways:
 ### Akka
 
 Akka is our middleware: each component of WASP is an actor and relies on a clustered Actor System. In this way each component can be a separate process, and even run on different machines, and we can handle fault tolerance in a trasparent way to the whole application.
-
+This is a general overview of the [ActorSystem](diagrams/actor_system.PNG)
 
 ### MongoDB
 
@@ -281,6 +283,10 @@ An example of an extended WaspProducerActor:
 - **Consumer**: to create a consumer you only need to implement the Strategy trait with a concrete class. The full qualifier of the class will then be used in the ETL block inside the Pipegraph definition or in the Batch definition.
 
 - **Models**: these define all the details of your Pipegraph, such as the Inputs, ETL blocks and Outputs, along with some metadata. Topics, Index, Raw etc. are first defined separately using the corresponding model classes, and then are used inside the Pipegraph definition. This has to be added to MongoDB; a convenient place to do this in is the prepareWorkloads() method in the FrameworkLauncher trait. Simply extend the trait in a class, implement the method, then use your Launcher as the main class for your application.
+
+[This](diagrams/pipegraph.PNG) is a pipegraph overview diagram, while [this](diagrams/pipegraph_model.PNG) is a more specific model representation of a pipegraph.
+Pipegraph is the core of WASP, because it allows to abstract a pipeline with no coupling between components. It's really easy to change a pipegraph in order to add a datastore or more transformation steps.
+
 
 An example of a Pipegraph definition:
 	
