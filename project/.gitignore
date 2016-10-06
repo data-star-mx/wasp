@@ -1,0 +1,4 @@
+*.scala~
+*.sbtserver.lock
+/sbt-ui.sbt
+*.sbtserver

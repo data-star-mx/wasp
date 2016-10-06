@@ -1,0 +1,75 @@
+include "reference"
+include "application"
+
+# workaround for missing global while in container; no idea why it happens
+application.global=it.agilelab.bigdata.wasp.web.Global
+
+# ==== VARIABLES ====
+# these are here for convenience; they are substituted below
+spark-driver = ""
+
+spark-master = {
+  protocol = ""
+  host = "yarn-client"
+  port = 0
+}
+
+kafka-broker-hostname = ""
+
+zookeeper-server-hostname = ""
+
+
+# ==== CONFIG ====
+mongo {
+  address = "mongo:27017"
+  db-name = "wasp-container-minimal-services"
+}
+
+kafka {
+  connections = [
+    {
+      protocol = ""
+      host = ${kafka-broker-hostname}
+      port = 9092
+    }
+  ]
+  zookeeper = {
+    protocol = ""
+    host = ${zookeeper-server-hostname}
+    port = 2181
+  }
+}
+
+spark-batch {
+  master = ${spark-master}
+  driver-hostname = ${spark-driver}
+  driver-port = 4500
+  block-manager-port = 4501
+  broadcast-port = 4502
+  fileserver-port = 4503
+}
+
+spark-streaming {
+  master = ${spark-master}
+  driver-hostname = ${spark-driver}
+  driver-port = 4500
+  block-manager-port = 4501
+  broadcast-port = 4502
+  fileserver-port = 4503
+}
+
+elastic {
+  connections = [
+    {
+      protocol = ""
+      host = "elastickibana"
+      port = 9300
+    },
+    {
+      protocol = ""
+      host = "elastickibana"
+      port = 9200
+    }
+  ]
+  cluster-name = "elasticsearch"
+}

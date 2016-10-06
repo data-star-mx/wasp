@@ -1,0 +1,48 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+
+# Home page
+
+
+GET           /pipegraphs                   it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.getAll()
+GET           /pipegraphs/:id               it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.getById(id: String)
+POST          /pipegraphs                   it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.insert()
+PUT           /pipegraphs                   it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.update()
+DELETE        /pipegraphs/:id               it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.delete(id: String)
+GET           /pipegraphs/name/:name        it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.getByName(name: String)
+POST          /pipegraphs/:id/start         it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.start(id: String)
+POST          /pipegraphs/:id/stop          it.agilelab.bigdata.wasp.web.controllers.Pipegraph_C.stop(id: String)
+
+GET           /producers                    it.agilelab.bigdata.wasp.web.controllers.Producer_C.getAll()
+GET           /producers/:id                it.agilelab.bigdata.wasp.web.controllers.Producer_C.getById(id: String)
+PUT           /producers                    it.agilelab.bigdata.wasp.web.controllers.Producer_C.update()
+POST          /producers/:id/start          it.agilelab.bigdata.wasp.web.controllers.Producer_C.start(id: String)
+POST          /producers/:id/stop           it.agilelab.bigdata.wasp.web.controllers.Producer_C.stop(id: String)
+
+GET           /topics                       it.agilelab.bigdata.wasp.web.controllers.Topic_C.getAll()
+GET           /topics/:id                   it.agilelab.bigdata.wasp.web.controllers.Topic_C.getById(id: String)
+
+GET           /batchjobs                    it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.getAll()
+GET           /batchjobs/:id                it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.getById(id: String)
+POST          /batchjobs                    it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.insert()
+PUT           /batchjobs                    it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.update()
+POST          /batchjobs/:id/start          it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.start(id: String)
+DELETE        /batchjobs/:id                it.agilelab.bigdata.wasp.web.controllers.BatchJob_C.delete(id: String)
+
+GET           /index/:name                  it.agilelab.bigdata.wasp.web.controllers.Index_C.getByName(name: String)
+
+GET           /mlmodels                     it.agilelab.bigdata.wasp.web.controllers.MlModels_C.getAll()
+GET           /mlmodels/:id                 it.agilelab.bigdata.wasp.web.controllers.MlModels_C.getById(id: String)
+PUT           /mlmodels                     it.agilelab.bigdata.wasp.web.controllers.MlModels_C.update()
+DELETE        /mlmodels/:id                 it.agilelab.bigdata.wasp.web.controllers.MlModels_C.delete(id: String)
+
+GET           /configs/kafka                it.agilelab.bigdata.wasp.web.controllers.Configuration_C.getKafka()
+GET           /configs/sparkbatch           it.agilelab.bigdata.wasp.web.controllers.Configuration_C.getSparkBatch()
+GET           /configs/sparkstreaming       it.agilelab.bigdata.wasp.web.controllers.Configuration_C.getSparkStreaming()
+GET           /configs/es                   it.agilelab.bigdata.wasp.web.controllers.Configuration_C.getES()
+GET           /configs/solr                 it.agilelab.bigdata.wasp.web.controllers.Configuration_C.getSolr()
+
+GET           /javascriptRoutes             it.agilelab.bigdata.wasp.web.controllers.Application.javascriptRoutes
+

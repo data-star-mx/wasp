@@ -1,0 +1,70 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - "./zookeeper:/opt/zookeeper-3.4.6/conf"
+      - "./data/zookeeper:/opt/zookeeper-3.4.6/data"
+
+  kafka:
+    image: wurstmeister/kafka:0.9.0.1
+    container_name: kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
+    volumes:
+      - "./data/kafka:/kafka/kafka-logs-9092"
+
+  spark-master:
+    image: gettyimages/spark:1.6.2-hadoop-2.6
+    command: ["bin/spark-class","org.apache.spark.deploy.master.Master","-h","spark-master"]
+    container_name: spark-master
+    environment:
+      SPARK_CONF_DIR: /etc/spark
+    expose:
+      - "7001"
+      - "7002"
+      - "7003"
+      - "7004"
+      - "7005"
+      - "7006"
+    ports:
+      - "6066:6066"
+      - "7077:7077"
+      - "8080:8080"
+      - "18080:18080"
+    volumes:
+      - "./spark-master:/etc/spark"
+      - "./data/spark-master:/tmp/data"
+
+  spark-worker:
+    image: gettyimages/spark:1.6.2-hadoop-2.6
+    command: ["bin/spark-class","org.apache.spark.deploy.worker.Worker","spark://spark-master:7077"]
+    container_name: spark-worker
+    environment:
+      SPARK_CONF_DIR: /etc/spark
+      SPARK_WORKER_CORES: 4
+      SPARK_WORKER_MEMORY: 4g
+      SPARK_WORKER_PORT: 8881
+    expose:
+      - "7012"
+      - "7013"
+      - "7014"
+      - "7015"
+      - "7016"
+      - "8881"
+    ports:
+      - "8081:8081"
+    volumes:
+      - "./spark-worker:/etc/spark"
+      - "./data/spark-worker:/tmp/data"
+networks:
+  default:
+    external:
+      name: wasp-docker

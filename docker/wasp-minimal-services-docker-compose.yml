@@ -1,0 +1,22 @@
+version: '2'
+services:
+  wasp:
+    image: agilelab/wasp
+    container_name: wasp
+    environment:
+      - CMF_CONF_DIR=/opt/hadoop/conf/ # needed for topology.py script to work correctly
+      - HADOOP_CONF_DIR=/opt/hadoop/conf/ # fixed to configuration volume path (mounted below)
+      - HADOOP_USER_NAME=$HADOOP_USER_NAME # pass along host's configured hadoop user name
+      - HOST_HOSTNAME=$HOST_HOSTNAME # pass along host's hostname, provided to us by wasp-container-minimal-services.sh
+    ports:
+      - "4040:4040" # spark webui
+      - "9000:9000" # wasp
+      - "9999:9999"
+      - "4500-4503:4500-4503" # ports used by spark for driver, block manager, broadcast & fileserver services
+    volumes:
+      - "$WASP_CLUSTER_CONF:/opt/wasp/wasp-container.conf" # mount host's wasp cluster configuration into container
+      - "$HADOOP_CONF_DIR:/opt/hadoop/conf" # mount hosts' hadoop configuration into container
+networks:
+  default:
+    external:
+      name: wasp-docker

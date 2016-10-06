@@ -1,0 +1,75 @@
+include "reference"
+include "application"
+
+
+# ==== VARIABLES ====
+# these are here for convenience; they are substituted below
+spark-driver = ""
+
+spark-master = {
+  protocol = ""
+  host = "yarn-client"
+  port = 0
+}
+
+kafka-broker-hostname = ""
+
+zookeeper-server-hostname = ""
+
+
+# ==== CONFIG ====
+mongo {
+  address = "localhost:27017"
+  db-name = "wasp-host-minimal-services"
+}
+
+kafka {
+  connections = [
+    {
+      protocol = ""
+      host = ${kafka-broker-hostname}
+      port = 9092
+    }
+  ]
+  zookeeper = {
+    protocol = ""
+    host = ${zookeeper-server-hostname}
+    port = 2181
+  }
+}
+
+spark-batch {
+  master = ${spark-master}
+  driver-hostname = ${spark-driver}
+}
+
+spark-streaming {
+  master = ${spark-master}
+  driver-hostname = ${spark-driver}
+}
+
+elastic {
+  connections = [
+    {
+      protocol = ""
+      host = "localhost"
+      port = 9300
+    },
+    {
+      protocol = ""
+      host = "localhost"
+      port = 9200
+    },
+    {
+      protocol = ""
+      host = "elastickibana"
+      port = 9300
+    },
+    {
+      protocol = ""
+      host = "elastickibana"
+      port = 9200
+    }
+  ]
+  cluster-name = "elasticsearch"
+}

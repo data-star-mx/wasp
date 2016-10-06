@@ -1,0 +1,42 @@
+<configuration>
+    
+  <conversionRule conversionWord="coloredLevel" converterClass="play.api.Logger$ColoredLevel" />
+  
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+     <file>${application.home}/logs/application.log</file>
+     <encoder>
+       <pattern>[%logger]%date - [%level] - %message%n%xException%n</pattern>
+     </encoder>
+   </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%logger]%coloredLevel - %date - %message%n%xException{5}</pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="play" level="WARN" ></logger>
+  <logger name="application" level="INFO"></logger>
+  
+  
+  <logger name="org.apache.spark" level="WARN" />
+
+  <logger name="org.apache.zookeeper" level="ERROR"/>
+  <logger name="org.apache.spark.storage.BlockManager" level="ERROR" />
+  <logger name="org.apache.spark.streaming.util.WriteAheadLog" level="WARN"/>
+  <logger name="org.apache.spark.streaming.util.WriteAheadLogManager" level="WARN"/>
+  <logger name="org.apache.spark.streaming.util.WriteAheadLogManager " level="WARN"/>
+  <logger name="org.apache.thrift" level="ERROR"/>
+  <logger name="org.apache.spark.storage.BlockManager" level="ERROR" />
+ 
+  
+  <!-- solo per debug delle connessioni al db
+  	<logger name="com.jolbox.bonecp" level="DEBUG">
+    </logger>
+  -->
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+  </root>
+  
+</configuration>

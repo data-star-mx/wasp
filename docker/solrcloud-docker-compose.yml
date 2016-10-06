@@ -1,0 +1,17 @@
+version: '2'
+services:
+  solrcloud:
+    image: agilelab/solrcloud
+    container_name: solrcloud
+    hostname: solrcloud
+    ports:
+     - "8983:8983"
+     - "7574:7574"
+     - "9983:9983"
+#    volumes:
+#     - "./data/solrcloud/node1:/solr/node1"
+#     - "./data/solrcloud/node2:/solr/node2"
+networks:
+  default:
+    external:
+      name: wasp-docker

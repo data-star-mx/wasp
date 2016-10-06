@@ -1,0 +1,14 @@
+version: '2'
+services:
+  mongo:
+    image: mongo:3.0.2
+    container_name: mongo
+    hostname: mongo
+    ports:
+     - "27017:27017"
+    volumes:
+     - "./data/mongo:/data/db"
+networks:
+  default:
+    external:
+      name: wasp-docker
