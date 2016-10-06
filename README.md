@@ -284,8 +284,13 @@ An example of an extended WaspProducerActor:
 
 - **Models**: these define all the details of your Pipegraph, such as the Inputs, ETL blocks and Outputs, along with some metadata. Topics, Index, Raw etc. are first defined separately using the corresponding model classes, and then are used inside the Pipegraph definition. This has to be added to MongoDB; a convenient place to do this in is the prepareWorkloads() method in the FrameworkLauncher trait. Simply extend the trait in a class, implement the method, then use your Launcher as the main class for your application.
 
+
+Pipegraph
+-------------
+
 [This](diagrams/pipegraph.PNG) is a pipegraph overview diagram, while [this](diagrams/pipegraph_model.PNG) is a more specific model representation of a pipegraph.
 Pipegraph is the core of WASP, because it allows to abstract a pipeline with no coupling between components. It's really easy to change a pipegraph in order to add a datastore or more transformation steps.
+The structure of a Pipegraph forces you to implement in the righ direction to avoid architectural mistakes. It forces you to have just one single output for each stream, so if you need to write your data into two datastore you are obliged to redirect the stream to Kafka topic and to consume it with two indipendent consumers.
 
 
 An example of a Pipegraph definition:
