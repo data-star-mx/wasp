@@ -292,37 +292,63 @@ Pipegraph
 Pipegraph is the core of WASP, because it allows to abstract a pipeline with no coupling between components. It's really easy to change a pipegraph in order to add a datastore or more transformation steps.
 The structure of a Pipegraph forces you to implement in the righ direction to avoid architectural mistakes. It forces you to have just one single output for each stream, so if you need to write your data into two datastore you are obliged to redirect the stream to Kafka topic and to consume it with two indipendent consumers.
 
-
 An example of a Pipegraph definition:
 	
 	object MetroPipegraphModel {
-
-		lazy val metroPipegraphName = "MetroPipegraph6"
-  		lazy val metroPipegraph = MetroPipegraph()
+	
+        lazy val metroPipegraphName = "MetroPipegraph6"
+        lazy val metroPipegraph = MetroPipegraph()
+        lazy val conf: Config = ConfigFactory.load
+        lazy val defaultDataStoreIndexed = conf.getString("default.datastore.indexed")
   	
-		private[wasp] object MetroPipegraph {
+		  private[wasp] object MetroPipegraph {
+        
+            def apply() =
+              PipegraphModel(
+                  name = MetroPipegraphModel.metroPipegraphName,
+                  description = "Los Angeles Metro Pipegraph",
+                  owner = "user",
+                  system = false,
+                  creationTime = WaspSystem.now,
+                  etl = List(
+                      ETLModel("write on index",
+                               List(ReaderModel(MetroTopicModel.metroTopic._id.get,
+                                                MetroTopicModel.metroTopic.name,
+                                                TopicModel.readerType)),
+                               WriterModel.IndexWriter(MetroIndexModel.metroIndex._id.get,
+                                                       MetroIndexModel.metroIndex.name, defaultDataStoreIndexed),
+                               List(),
+                               Some(StrategyModel("it.agilelab.bigdata.wasp.pipegraph.metro.strategies.MetroStrategy", None))
+                      )
+                  ),
+                  rt = Nil,
+                  dashboard = None,
+                  isActive = false,
+                  _id = Some(BSONObjectID.generate))
+        
+          }}
 
-	    def apply() =
-	      PipegraphModel(
-	          name = MetroPipegraphModel.metroPipegraphName,
-	          description = "Los Angeles Metro Pipegraph",
-	          owner = "user",
-	          system = false,
-	          creationTime = WaspSystem.now,
-	          etl = List(
-	              ETLModel("write on index",
-	                       List(ReaderModel(MetroTopicModel.metroTopic._id.get,
-	                                        MetroTopicModel.metroTopic.name,
-	                                        TopicModel.readerType)),
-	                       WriterModel.IndexWriter(MetroIndexModel.metroIndex._id.get,
-	                                               MetroIndexModel.metroIndex.name),
-	                       List(),
-	                       None)),
-	          rt = Nil,
-	          dashboard = None,
-	          isActive = false,
-	          _id = Some(BSONObjectID.generate)) 
-		}}
+An other important part of the pipegraph is the strategy. Using strategy, you can apply custom transformation directly to the dataframe, when the DStream is processed with
+Spark.
+
+An example of a Pipegraph strategy definition:
+
+    case class MetroStrategy() extends Strategy {
+    
+      def transform(dataFrames: Map[ReaderKey, DataFrame]) = {
+    
+        val input = dataFrames.get(ReaderKey(TopicModel.readerType, "metro.topic")).get
+    
+        /** Put your transformation here. */
+    
+        input.filter(input("longitude") < -118.451683D)
+    
+      }
+    
+    }
+
+In this example the DataFrame is filtered at runtime with a "longitude" condition (i.e. < -118.451683D). Is possible apply more complicated trasformation
+using all the Spark DataFrame APIs like select, filter, groupBy and count [Spark DataFrame APIs](https://spark.apache.org/docs/1.6.2/api/scala/index.html#org.apache.spark.sql.DataFrame).
 
 ### Running your application
 
