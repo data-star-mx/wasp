@@ -44,7 +44,7 @@ object KafkaReader extends StreamingReader {
     )
 
 
-    if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.name))) {
+    if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.name, kafkaConfig.partitions.getOrElse(2), kafkaConfig.replicas.getOrElse(1)))) {
       val receiver = KafkaUtils.createStream[String, Array[Byte], StringDecoder, DefaultDecoder](
         ssc,
         kafkaConfigMap + ("group.id" -> group),
