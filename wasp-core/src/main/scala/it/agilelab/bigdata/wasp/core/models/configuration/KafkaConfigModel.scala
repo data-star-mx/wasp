@@ -11,7 +11,9 @@ case class KafkaConfigModel(connections: Array[ConnectionConfig],
 	                          encoder_fqcn: String,
 	                          decoder_fqcn: String,
 	                          batch_send_size: Int,
-	                          name: String) {
+	                          name: String,
+														partitions: Option[Int] = Some(2),
+														replicas: Option[Int] = Some(1)) {
 
 	def toTinyConfig() = TinyKafkaConfig(connections, batch_send_size, default_encoder, encoder_fqcn, partitioner_fqcn)
 

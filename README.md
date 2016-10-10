@@ -113,6 +113,11 @@ This is a general overview of the [ActorSystem](diagrams/actor_system.PNG)
 
 MongoDB is the central repository for all configurations, ML models, and entities. It is fault tolerant and it simplifies the deployment in a distributed environment because each node just needs the MongoDB address to be ready to go.
 
+### Pluggable Datastore
+
+WASP system is integrated with Elasticsearch, Solr and HDFS. All data stored inside the datastore is indexed and searchable via the specific query language of the datastore.
+In the next future we will extend the support to Cassandra and HBase datastore.
+
 Using WASP
 ------------
 
