@@ -31,6 +31,8 @@ private[wasp] object LoggerTopic {
 	def apply() = TopicModel(
 		name = TopicModel.name(topic_name),
 		creationTime = WaspSystem.now,
+		partitions = 3,
+		replicas = 1,
 		schema = BSONFormats.fromString(topicSchema).get,
 		_id = Some(BSONObjectID.generate)
 	)
@@ -114,6 +116,8 @@ private[wasp] object RawTopic {
 	def apply() = TopicModel(
 		name = TopicModel.name(topic_name),
 		creationTime = WaspSystem.now,
+		partitions = 3,
+		replicas = 1,
 		schema = BSONFormats.fromString(topicSchema).get,
 		_id = Some(BSONObjectID.generate)
 	)
