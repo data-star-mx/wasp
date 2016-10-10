@@ -65,9 +65,7 @@ object ConfigManager extends BSONConversionHelper {
       kafkaSubConfig.getString("encoder-fqcn"),
       kafkaSubConfig.getString("decoder-fqcn"),
       kafkaSubConfig.getInt("batch-send-size"),
-      kafkaConfigName,
-      Some(kafkaSubConfig.getInt("partitions")),
-      Some(kafkaSubConfig.getInt("replicas"))
+      kafkaConfigName
     )
   }
 

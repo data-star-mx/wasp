@@ -104,7 +104,7 @@ abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topi
               topic => {
                 associatedTopic = topic
                 logger.info(s"Topic found  $topic")
-                if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.get.name, kafkaConfig.partitions.getOrElse(2), kafkaConfig.replicas.getOrElse(1)))) {
+                if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.get.name, topic.get.partitions, topic.get.replicas))) {
                   logger.info("Before run kafka_router")
 
                   kafka_router = actorSystem.actorOf(BalancingPool(5).props(Props(new KafkaPublisherActor(ConfigManager.getKafkaConfig))), router_name)

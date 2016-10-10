@@ -22,5 +22,7 @@ object TopicModel {
 
 case class TopicModel(override val name: String,
                       creationTime: Long,
+                      partitions: Int,
+                      replicas: Int,
                       schema: BSONDocument,
                       _id: Option[BSONObjectID] = None) extends Model
