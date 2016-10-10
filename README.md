@@ -295,7 +295,7 @@ Pipegraph
 
 [This](diagrams/pipegraph.PNG) is a pipegraph overview diagram, while [this](diagrams/pipegraph_model.PNG) is a more specific model representation of a pipegraph.
 Pipegraph is the core of WASP, because it allows to abstract a pipeline with no coupling between components. It's really easy to change a pipegraph in order to add a datastore or more transformation steps.
-The structure of a Pipegraph forces you to implement in the righ direction to avoid architectural mistakes. It forces you to have just one single output for each stream, so if you need to write your data into two datastore you are obliged to redirect the stream to Kafka topic and to consume it with two indipendent consumers.
+The structure of a Pipegraph forces you to implement in the right direction to avoid architectural mistakes. It forces you to have just one single output for each stream, so if you need to write your data into two datastore you are obliged to redirect the stream to Kafka topic and to consume it with two indipendent consumers.
 
 An example of a Pipegraph definition:
 	
