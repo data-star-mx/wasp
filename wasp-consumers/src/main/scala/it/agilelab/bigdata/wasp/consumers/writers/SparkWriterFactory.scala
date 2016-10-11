@@ -41,7 +41,7 @@ object SparkWriterFactoryDefault extends SparkWriterFactory {
       case "index" => {
         defaultDataStoreIndexed match {
           case "elastic" => Some(new ElasticSparkWriter(env, sc, writerModel.id.stringify))
-          case "solr" => Some(new ElasticSparkWriter(env, sc, writerModel.id.stringify))
+          case "solr" => Some(new SolrSparkWriter(env, sc, writerModel.id.stringify))
           case _ =>  Some(new ElasticSparkWriter(env, sc, writerModel.id.stringify))
         }
       }
