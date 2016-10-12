@@ -20,7 +20,10 @@ Table of contents
 
 ---
 
-[Gitter](https://gitter.im/agile-lab-wasp/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+Gitter
+-------------
+
+Chat with the team [Gitter](https://gitter.im/agile-lab-wasp/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 
 Overview
 -------------
