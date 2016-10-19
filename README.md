@@ -131,6 +131,12 @@ WASP is written in Scala, and the build is managed with SBT.
 
 The recommended development environment is Linux; developing on Windows or MacOS is certainly possible, but is not supported, sorry about that!
 
+Before starting:
+
+- Install JDK
+- Install SBT
+- Install Git
+
 
 The steps to getting WASP up and running for development are pretty simple:
 - Clone this repository:
