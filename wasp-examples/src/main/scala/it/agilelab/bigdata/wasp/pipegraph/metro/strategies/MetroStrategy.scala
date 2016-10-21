@@ -14,7 +14,6 @@ case class MetroStrategy() extends Strategy {
     /** Put your transformation here. */
 
     input.filter(input("longitude") < -118.451683D)
-
   }
 
 }

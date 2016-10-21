@@ -21,6 +21,7 @@ object MetroTopicModel {
       creationTime = WaspSystem.now,
       partitions = 3,
       replicas = 1,
+      schemaType = "avro",
       schema = BSONFormats.fromString(topicSchema).get,
       _id = Some(BSONObjectID.generate)
     )

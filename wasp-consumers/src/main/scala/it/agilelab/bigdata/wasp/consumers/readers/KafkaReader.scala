@@ -5,7 +5,7 @@ import it.agilelab.bigdata.wasp.core.WaspSystem._
 import it.agilelab.bigdata.wasp.core.kafka.CheckOrCreateTopic
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.{DefaultConfiguration, TopicModel}
-import it.agilelab.bigdata.wasp.core.utils.{ConfigManager, AvroToJsonUtil}
+import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, ConfigManager, JsonToKafkaUtil}
 import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
@@ -52,7 +52,12 @@ object KafkaReader extends StreamingReader {
         StorageLevel.MEMORY_AND_DISK_2
       )
 
-      receiver.map(x => (x._1, AvroToJsonUtil.avroToJson(x._2))).map(_._2)
+      topic.schemaType match {
+        case "avro" => receiver.map(x => (x._1, AvroToJsonUtil.avroToJson(x._2))).map(_._2)
+        case "json" => receiver.map(x => (x._1, JsonToKafkaUtil.byteArrayToJson(x._2))).map(_._2)
+        case _ => receiver.map(x => (x._1, AvroToJsonUtil.avroToJson(x._2))).map(_._2)
+      }
+
     } else {
       logger.error(s"Topic not found on Kafka: $topic")
       throw new Exception(s"Topic not found on Kafka: $topic")

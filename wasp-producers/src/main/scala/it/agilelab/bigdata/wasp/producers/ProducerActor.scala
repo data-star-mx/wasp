@@ -5,7 +5,7 @@ import it.agilelab.bigdata.wasp.core.SystemPipegraphs._
 import it.agilelab.bigdata.wasp.core.WaspEvent.WaspMessageEnvelope
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.TopicModel
-import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats}
+import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, JsonToKafkaUtil}
 
 case object StopMainTask
 
@@ -30,6 +30,7 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
   val partitionKey = "partitionKey"
 
   val rawTopicSchema = BSONFormats.toString(rawTopic.schema)
+  val topicSchemaType = topic.map(_.schemaType).getOrElse("avro")
   val topicSchema = topic.map(t => BSONFormats.toString(t.schema))
 
   override def postStop() {
@@ -54,7 +55,12 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
       val rawJson = generateRawOutputJsonMessage(input)
       //TODO: Add rawSchema from system raw pipeline
       try {
-        kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, AvroToJsonUtil.jsonToAvro(rawJson, rawTopicSchema))
+        topicSchemaType match {
+          case "avro" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, AvroToJsonUtil.jsonToAvro(rawJson, rawTopicSchema))
+          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, JsonToKafkaUtil.jsonToByteArray(rawJson))
+          case _ => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, AvroToJsonUtil.jsonToAvro(rawJson, rawTopicSchema))
+        }
+
       } catch {
         case e: Throwable => logger.error("Exception sending message to kafka", e)
       }
@@ -63,7 +69,12 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
     topic.foreach { p =>
       val customJson = generateOutputJsonMessage(input)
       try {
-        kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema.get))
+        topicSchemaType match {
+          case "avro" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema.get))
+          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, JsonToKafkaUtil.jsonToByteArray(customJson))
+          case _ => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema.get))
+        }
+
       } catch {
         case e: Throwable => logger.error("Exception sending message to kafka", e)
       }

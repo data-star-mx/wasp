@@ -1,12 +1,13 @@
 package it.agilelab.bigdata.wasp.core.utils
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, EOFException}
+import java.io._
 
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import org.apache.avro.Schema
 import org.apache.avro.file.{DataFileStream, DataFileWriter}
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
 import org.apache.avro.io.{DecoderFactory, EncoderFactory, JsonEncoder}
+import play.api.libs.json.{JsValue, Json}
 
 object AvroToJsonUtil {
 
