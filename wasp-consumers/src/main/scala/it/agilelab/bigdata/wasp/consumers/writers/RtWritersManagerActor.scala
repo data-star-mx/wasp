@@ -69,7 +69,7 @@ class CamelKafkaWriter(topicBL: TopicBL, writer: WriterModel) extends Producer {
   if (kafkaTopic.isEmpty) {
     //TODO eccezione? fallisce l'attore?
   }
-  val topicSchema = BSONFormats.toString(kafkaTopic.get.schema)
+  val topicSchema = BSONFormats.toString(kafkaTopic.get.schema.getOrElse(BSONDocument()))
 
 
   override def endpointUri: String = getKafkaUri(writer.name)

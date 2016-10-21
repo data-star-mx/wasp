@@ -5,7 +5,8 @@ import it.agilelab.bigdata.wasp.core.SystemPipegraphs._
 import it.agilelab.bigdata.wasp.core.WaspEvent.WaspMessageEnvelope
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.TopicModel
-import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, JsonToKafkaUtil}
+import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, JsonToByteArrayUtil}
+import reactivemongo.bson.BSONDocument
 
 case object StopMainTask
 
@@ -29,9 +30,9 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
   //TODO occhio che abbiamo la partition key schianatata, quindi usiamo sempre e solo una partizione
   val partitionKey = "partitionKey"
 
-  val rawTopicSchema = BSONFormats.toString(rawTopic.schema)
-  val topicSchemaType = topic.map(_.schemaType).getOrElse("avro")
-  val topicSchema = topic.map(t => BSONFormats.toString(t.schema))
+  val rawTopicSchema = BSONFormats.toString(rawTopic.schema.getOrElse(BSONDocument()))
+  lazy val topicSchemaType = topic.get.topicDataType
+  lazy val topicSchema = BSONFormats.toString(topic.get.schema.getOrElse(BSONDocument()))
 
   override def postStop() {
     log.info(s"Stopping actor ${this.getClass.getName}")
@@ -57,7 +58,7 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
       try {
         topicSchemaType match {
           case "avro" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, AvroToJsonUtil.jsonToAvro(rawJson, rawTopicSchema))
-          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, JsonToKafkaUtil.jsonToByteArray(rawJson))
+          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, JsonToByteArrayUtil.jsonToByteArray(rawJson))
           case _ => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](rawTopic.name, partitionKey, AvroToJsonUtil.jsonToAvro(rawJson, rawTopicSchema))
         }
 
@@ -70,9 +71,9 @@ abstract class ProducerActor[T](val kafka_router: ActorRef, val topic: Option[To
       val customJson = generateOutputJsonMessage(input)
       try {
         topicSchemaType match {
-          case "avro" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema.get))
-          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, JsonToKafkaUtil.jsonToByteArray(customJson))
-          case _ => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema.get))
+          case "avro" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema))
+          case "json" => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, JsonToByteArrayUtil.jsonToByteArray(customJson))
+          case _ => kafka_router ! WaspMessageEnvelope[String, Array[Byte]](p.name, partitionKey, AvroToJsonUtil.jsonToAvro(customJson, topicSchema))
         }
 
       } catch {

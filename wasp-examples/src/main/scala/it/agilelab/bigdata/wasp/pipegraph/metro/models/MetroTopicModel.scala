@@ -21,8 +21,8 @@ object MetroTopicModel {
       creationTime = WaspSystem.now,
       partitions = 3,
       replicas = 1,
-      schemaType = "avro",    // avro or json
-      schema = BSONFormats.fromString(topicSchema).get,
+      topicDataType = "avro",    // avro or json
+      schema = Some(BSONFormats.fromString(topicSchema).get),
       _id = Some(BSONObjectID.generate)
     )
 

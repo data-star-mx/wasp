@@ -8,6 +8,7 @@ import it.agilelab.bigdata.wasp.core.models.configuration.TinyKafkaConfig
 import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, ConfigManager}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+import reactivemongo.bson.BSONDocument
 
 import scala.concurrent.Await
 
@@ -24,7 +25,7 @@ class KafkaSparkStreamingWriter(env: {val topicBL: TopicBL}, ssc: StreamingConte
 
       if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.name, topic.partitions, topic.replicas))) {
 
-        val schemaB = ssc.sparkContext.broadcast(BSONFormats.toString(topic.schema))
+        val schemaB = ssc.sparkContext.broadcast(BSONFormats.toString(topic.schema.getOrElse(BSONDocument())))
         val configB = ssc.sparkContext.broadcast(ConfigManager.getKafkaConfig.toTinyConfig())
         val topicNameB = ssc.sparkContext.broadcast(topic.name)
 

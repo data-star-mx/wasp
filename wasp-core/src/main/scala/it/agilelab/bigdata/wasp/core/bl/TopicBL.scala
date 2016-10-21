@@ -23,7 +23,7 @@ class TopicBLImp(waspDB: WaspDB) extends TopicBL with BSONConversionHelper {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  private def factory(t: TopicModel) = new TopicModel(t.name, t.creationTime, t.partitions, t.replicas, t.schemaType, t.schema, t._id)
+  private def factory(t: TopicModel) = new TopicModel(t.name, t.creationTime, t.partitions, t.replicas, t.topicDataType, t.schema, t._id)
 
   def getByName(name: String): Future[Option[TopicModel]] = {
     waspDB.getDocumentByField[TopicModel]("name", new BSONString(name)).map(topic => {

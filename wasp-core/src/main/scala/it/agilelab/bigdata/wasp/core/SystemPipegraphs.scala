@@ -33,8 +33,8 @@ private[wasp] object LoggerTopic {
 		creationTime = WaspSystem.now,
 		partitions = 3,
 		replicas = 1,
-		schemaType = "avro",
-		schema = BSONFormats.fromString(topicSchema).get,
+		topicDataType = "avro",
+		schema = Some(BSONFormats.fromString(topicSchema).get),
 		_id = Some(BSONObjectID.generate)
 	)
 
@@ -119,8 +119,8 @@ private[wasp] object RawTopic {
 		creationTime = WaspSystem.now,
 		partitions = 3,
 		replicas = 1,
-		schemaType = "avro",
-		schema = BSONFormats.fromString(topicSchema).get,
+		topicDataType = "avro",
+		schema = Some(BSONFormats.fromString(topicSchema).get),
 		_id = Some(BSONObjectID.generate)
 	)
 

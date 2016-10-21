@@ -5,7 +5,7 @@ import java.io.UnsupportedEncodingException
 /**
   * Created by matteo on 21/10/16.
   */
-object JsonToKafkaUtil {
+object JsonToByteArrayUtil {
 
   def jsonToByteArray(data: String): Array[Byte] = {
     val opData: Option[String] = Option(data)
