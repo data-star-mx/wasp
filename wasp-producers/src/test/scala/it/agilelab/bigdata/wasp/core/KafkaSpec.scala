@@ -77,7 +77,14 @@ class KafkaSpec extends FlatSpec with Matchers with BeforeAndAfterAll  with Scal
     "fields":[
        {"name":"description","type":"string"}
     ]}"""
-    val topicModel = TopicModel(name = "testTopicModel2", creationTime = 1l, schema = BSONFormats.fromString(testTopicModelSchema).get, _id = Some(BSONObjectID.generate))
+    val topicModel = TopicModel(name = "testTopicModel2",
+      creationTime = 1l,
+      partitions =  1,
+      replicas = 1,
+      topicDataType = "avro", // avro, json, xml
+      schema = BSONFormats.fromString(testTopicModelSchema),
+      _id = Some(BSONObjectID.generate))
+
     val producerModel = ProducerModel(
       name = ProducerMasterGuadianTest.name,
       className = "it.agilelab.bigdata.wasp.core.ProducerNodeGuadianTest",

@@ -178,7 +178,11 @@ class MlModelsSpec extends SparkFlatSpec with BeforeAndAfter {
     ]}"""
 
     val topicBLId = BSONObjectID.generate
-    testBL.topicBL.persist(TopicModel(MlModelsSpecBatchModelMaker.nameDF, 1, BSONFormats.fromString(topicSchema).get, Some(topicBLId)))
+    testBL.topicBL.persist(TopicModel(MlModelsSpecBatchModelMaker.nameDF, 1,
+      partitions =  1,
+      replicas = 1,
+      topicDataType = "avro", // avro, json, xml
+      BSONFormats.fromString(topicSchema), Some(topicBLId)))
 
 
     val etl = ETLModel(
