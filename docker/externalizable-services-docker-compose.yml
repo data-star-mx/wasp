@@ -19,7 +19,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - "./data/kafka:/kafka/kafka-logs-9092"
+      - "./data/kafka:/kafka/"
 
   spark-master:
     image: gettyimages/spark:1.6.2-hadoop-2.6
