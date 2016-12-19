@@ -67,4 +67,5 @@ kibana-4.0.2 WASP/
 wasp-producers/.settings/org.eclipse.ltk.core.refactoring.prefs
 /.cache-tests
 *.cache-main
-spark-lib/*
+spark-lib/managed/*
+spark-lib.list
