@@ -13,7 +13,7 @@ services:
     image: wurstmeister/kafka:0.9.0.1
     container_name: kafka
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ADVERTISED_HOST_NAME: 172.17.0.1 # the standard ip of docker0
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     ports:
