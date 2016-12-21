@@ -11,7 +11,7 @@ case $1 in
     INDEXED_DATASTORE_SERVICE="-f elastickibana-docker-compose.yml -f solrcloud-docker-compose.yml"
     ;;
 *)
-    echo "Invalid or missing indexed datastore service argument (valid: \"elastic\", \"solr\", \"both\"); using elasticsearch."
+    echo "No indexed datastore specified (valid: \"elastic\", \"solr\", \"both\"); using elasticsearch."
     INDEXED_DATASTORE_SERVICE="-f elastickibana-docker-compose.yml"
     ;;
 esac
