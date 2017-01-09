@@ -1,4 +1,4 @@
-#WASP
+![WASP](icons/WASP_logo.jpg)
 
 ###Wide Analytics Streaming Platform
 
