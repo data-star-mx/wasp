@@ -40,5 +40,6 @@ object Versions {
   val Spark = "1.6.2"
   val Solr = "4.10.4"
   val SolrSpark = "1.0.0"
+  val HBaseSpark = "1.2.0-cdh5.9.1"
   val apacheCommonsLang3Version = "3.4"
 }
