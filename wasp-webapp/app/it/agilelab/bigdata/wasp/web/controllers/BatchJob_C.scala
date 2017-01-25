@@ -69,8 +69,9 @@ object BatchJob_C extends WaspController {
           "configuration" -> optional(text))(
             (className, configuration) =>
               StrategyModel(className, configuration.flatMap(c => fromString(c))))(
-            s => Some(s.className, s.configuration.map(c => BSONFormats.toString(c))))))
-        ((name, inputs, output, mlModels, strategy) => ETLModel(name, inputs, output, mlModels, strategy))(e => Some(e.name, e.inputs, e.output, e.mlModels, e.strategy)),
+            s => Some(s.className, s.configuration.map(c => BSONFormats.toString(c))))),
+        "kafkaAccessType" -> text)
+        ((name, inputs, output, mlModels, strategy, kafkaAccessType) => ETLModel(name, inputs, output, mlModels, strategy, kafkaAccessType))(e => Some(e.name, e.inputs, e.output, e.mlModels, e.strategy, e.kafkaAccessType)),
       "state" -> text,
       "id" -> optional(text))(
         (name, description, owner, system, etl, state, id) => BatchJobModel(name, description, owner, system, now.getTime, etl, state, id.map(_id => BSONObjectID(_id))))(

@@ -159,7 +159,7 @@ class ConsumerEtlActor(env: {val topicBL: TopicBL; val indexBL: IndexBL; val raw
       assert(topicModelOpt.isDefined)
 
       val topicModel = topicModelOpt.get
-      val stream: DStream[String] = streamingReader.createStream(etl.group, topicModel)(ssc = ssc)
+      val stream: DStream[String] = streamingReader.createStream(etl.group, etl.kafkaAccessType, topicModel)(ssc = ssc)
       (ReaderKey(TopicModel.readerType, topicModel.name), stream)
     })
 

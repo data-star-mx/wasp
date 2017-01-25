@@ -101,7 +101,7 @@ private[wasp] object LoggerPipegraph {
 		creationTime = WaspSystem.now,
 		etl = List(ETLModel(
 			"write on index", List(TopicReader(loggerTopic._id.get, loggerTopic.name)),
-			IndexWriter(loggerIndex._id.get, loggerIndex.name), List(),None)
+			IndexWriter(loggerIndex._id.get, loggerIndex.name), List(),None, ETLModel.KAFKA_ACCESS_TYPE_RECEIVED_BASED)
 		),
 		rt = Nil,
 		dashboard = None,
@@ -163,7 +163,7 @@ private[wasp] object RawPipegraph {
 		etl = List(ETLModel(
 			"write on index",
 			List(TopicReader(rawTopic._id.get, rawTopic.name)),
-			IndexWriter(rawIndex._id.get, rawIndex.name), List(), None)
+			IndexWriter(rawIndex._id.get, rawIndex.name), List(), None, ETLModel.KAFKA_ACCESS_TYPE_RECEIVED_BASED)
 		),
 		rt = Nil,
 		dashboard = None,
