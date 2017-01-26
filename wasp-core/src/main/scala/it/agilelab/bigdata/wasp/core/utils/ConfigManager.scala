@@ -149,7 +149,7 @@ object ConfigManager extends BSONConversionHelper {
     SolrConfigModel(
       readConnections(solrSubConfig, "connections"),
       readConnections(solrSubConfig, "apiEndPoint").headOption,
-      elasticConfigName,
+      solrConfigName,
       None,
       "wasp"
     )
