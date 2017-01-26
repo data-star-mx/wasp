@@ -144,7 +144,16 @@ object ConfigManager extends BSONConversionHelper {
     )
   }
 
-  private def getDefaultSolrConfig: SolrConfigModel = SolrConfigModel.default
+  private def getDefaultSolrConfig: SolrConfigModel = {
+    val solrSubConfig = conf.getConfig("solrcloud")
+    SolrConfigModel(
+      readConnections(solrSubConfig, "connections"),
+      readConnections(solrSubConfig, "apiEndPoint").headOption,
+      elasticConfigName,
+      None,
+      "wasp"
+    )
+  }
 
 	/**
     * Initialize the configurations managed by this ConfigManager.
