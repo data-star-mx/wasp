@@ -31,7 +31,7 @@ class RtWritersManagerActor(env:{val topicBL: TopicBL; val websocketBL: Websocke
       case Some(actor) =>
         actor ! data
         //TODO
-      case None => ???
+      case None => //TODO: do nuffin is ok here?
     }
   }
 

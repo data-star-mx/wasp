@@ -20,15 +20,15 @@ case class ReaderModel(id: BSONObjectID, name: String, readerType: String)
 
 object WriterModel {
 
-  def IndexWriter(id_index: BSONObjectID, name: String) = WriterModel(id_index, name, new WriteType("index", "elastic"))
+  def IndexWriter(id_index: BSONObjectID, name: String) = WriterModel(id_index, name, WriteType("index", "elastic"))
 
-  def IndexWriter(id_index: BSONObjectID, name: String, product: String) = WriterModel(id_index, name, new WriteType("index", product))
+  def IndexWriter(id_index: BSONObjectID, name: String, product: String) = WriterModel(id_index, name, WriteType("index", product))
 
-  def TopicWriter(id_topic: BSONObjectID, name: String) = WriterModel(id_topic, name, new WriteType("topic", "kafka"))
+  def TopicWriter(id_topic: BSONObjectID, name: String) = WriterModel(id_topic, name, WriteType("topic", "kafka"))
 
-  def WebSocketWriter(id_websocket: BSONObjectID, name: String) = WriterModel(id_websocket, name, new WriteType("websocket", "websocket"))
-  
-  def RawWriter(id_raw: BSONObjectID, name: String) = WriterModel(id_raw, name, new WriteType("raw", "raw"))
+  def WebSocketWriter(id_websocket: BSONObjectID, name: String) = WriterModel(id_websocket, name, WriteType("websocket", "websocket"))
+
+  def RawWriter(id_raw: BSONObjectID, name: String) = WriterModel(id_raw, name, WriteType("raw", "raw"))
 }
 
 object ReaderModel {
@@ -38,7 +38,7 @@ object ReaderModel {
   def TopicReader(id_topic: BSONObjectID, name: String) = ReaderModel(id_topic, name, "topic")
 
   def WebSocketReader(id_websocket: BSONObjectID, name: String) = ReaderModel(id_websocket, name, "websocket")
-  
+
   def RawReader(id_raw: BSONObjectID, name: String) = ReaderModel(id_raw, name, "raw")
 }
 
