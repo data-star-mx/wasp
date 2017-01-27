@@ -19,7 +19,6 @@ import java.util.Map.Entry
 import reactivemongo.bson.{BSONDocumentReader, BSONDocumentWriter, BSONString}
 import it.agilelab.bigdata.wasp.core.models.configuration._
 
-
 object ConfigManager extends BSONConversionHelper {
   var conf: Config = ConfigFactory.load
 
@@ -41,7 +40,7 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   private def getDefaultMongoConfig: MongoDBConfigModel = {
-    val mongoSubConfig= conf.getConfig("mongo")
+    val mongoSubConfig = conf.getConfig("mongo")
     MongoDBConfigModel(
       mongoSubConfig.getString("address"),
       mongoSubConfig.getString("db-name"),
@@ -70,18 +69,40 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   private def initializeSparkBatchConfig(): Unit = {
-    sparkBatchConfig = retrieveConf(getDefaultSparkBatchConfig, sparkBatchConfigName).get
+    sparkBatchConfig =
+      retrieveConf(getDefaultSparkBatchConfig, sparkBatchConfigName).get
   }
 
   private def getDefaultSparkBatchConfig: SparkBatchConfigModel = {
     val sparkSubConfig = conf.getConfig("spark-batch")
-    val executorMemory = if (sparkSubConfig.hasPath("executor-memory")) Some(sparkSubConfig.getString("executor-memory")) else None
-    val additionalJars = if (sparkSubConfig.hasPath("additional-jars")) Some(sparkSubConfig.getStringList("additional-jars").asScala) else None
-    val yarnJar = if (sparkSubConfig.hasPath("yarn-jar")) Some(sparkSubConfig.getString("yarn-jar")) else None
-    val blockManagerPort = if (sparkSubConfig.hasPath("block-manager-port")) Some(sparkSubConfig.getInt("block-manager-port")) else None
-    val broadcastPort = if (sparkSubConfig.hasPath("broadcast-port")) Some(sparkSubConfig.getInt("broadcast-port")) else None
-    val driverPort = if (sparkSubConfig.hasPath("driver-port")) Some(sparkSubConfig.getInt("driver-port")) else None
-    val fileserverPort = if (sparkSubConfig.hasPath("fileserver-port")) Some(sparkSubConfig.getInt("fileserver-port")) else None
+    val executorMemory =
+      if (sparkSubConfig.hasPath("executor-memory"))
+        Some(sparkSubConfig.getString("executor-memory"))
+      else None
+    val additionalJars =
+      if (sparkSubConfig.hasPath("additional-jars"))
+        Some(sparkSubConfig.getStringList("additional-jars").asScala)
+      else None
+    val yarnJar =
+      if (sparkSubConfig.hasPath("yarn-jar"))
+        Some(sparkSubConfig.getString("yarn-jar"))
+      else None
+    val blockManagerPort =
+      if (sparkSubConfig.hasPath("block-manager-port"))
+        Some(sparkSubConfig.getInt("block-manager-port"))
+      else None
+    val broadcastPort =
+      if (sparkSubConfig.hasPath("broadcast-port"))
+        Some(sparkSubConfig.getInt("broadcast-port"))
+      else None
+    val driverPort =
+      if (sparkSubConfig.hasPath("driver-port"))
+        Some(sparkSubConfig.getInt("driver-port"))
+      else None
+    val fileserverPort =
+      if (sparkSubConfig.hasPath("fileserver-port"))
+        Some(sparkSubConfig.getInt("fileserver-port"))
+      else None
     SparkBatchConfigModel(
       readConnection(sparkSubConfig.getConfig("master")),
       sparkSubConfig.getInt("cleaner-ttl"),
@@ -98,18 +119,40 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   private def initializeSparkStreamingConfig(): Unit = {
-    sparkStreamingConfig = retrieveConf(getDefaultSparkStreamingConfig, sparkStreamingConfigName).get
+    sparkStreamingConfig = retrieveConf(getDefaultSparkStreamingConfig,
+                                        sparkStreamingConfigName).get
   }
 
   private def getDefaultSparkStreamingConfig: SparkStreamingConfigModel = {
     val sparkSubConfig = conf.getConfig("spark-streaming")
-    val executorMemory = if (sparkSubConfig.hasPath("executor-memory")) Some(sparkSubConfig.getString("executor-memory")) else None
-    val additionalJars = if (sparkSubConfig.hasPath("additional-jars")) Some(sparkSubConfig.getStringList("additional-jars").asScala) else None
-    val yarnJar = if (sparkSubConfig.hasPath("yarn-jar")) Some(sparkSubConfig.getString("yarn-jar")) else None
-    val blockManagerPort = if (sparkSubConfig.hasPath("block-manager-port")) Some(sparkSubConfig.getInt("block-manager-port")) else None
-    val broadcastPort = if (sparkSubConfig.hasPath("broadcast-port")) Some(sparkSubConfig.getInt("broadcast-port")) else None
-    val driverPort = if (sparkSubConfig.hasPath("driver-port")) Some(sparkSubConfig.getInt("driver-port")) else None
-    val fileserverPort = if (sparkSubConfig.hasPath("fileserver-port")) Some(sparkSubConfig.getInt("fileserver-port")) else None
+    val executorMemory =
+      if (sparkSubConfig.hasPath("executor-memory"))
+        Some(sparkSubConfig.getString("executor-memory"))
+      else None
+    val additionalJars =
+      if (sparkSubConfig.hasPath("additional-jars"))
+        Some(sparkSubConfig.getStringList("additional-jars").asScala)
+      else None
+    val yarnJar =
+      if (sparkSubConfig.hasPath("yarn-jar"))
+        Some(sparkSubConfig.getString("yarn-jar"))
+      else None
+    val blockManagerPort =
+      if (sparkSubConfig.hasPath("block-manager-port"))
+        Some(sparkSubConfig.getInt("block-manager-port"))
+      else None
+    val broadcastPort =
+      if (sparkSubConfig.hasPath("broadcast-port"))
+        Some(sparkSubConfig.getInt("broadcast-port"))
+      else None
+    val driverPort =
+      if (sparkSubConfig.hasPath("driver-port"))
+        Some(sparkSubConfig.getInt("driver-port"))
+      else None
+    val fileserverPort =
+      if (sparkSubConfig.hasPath("fileserver-port"))
+        Some(sparkSubConfig.getInt("fileserver-port"))
+      else None
     SparkStreamingConfigModel(
       readConnection(sparkSubConfig.getConfig("master")),
       sparkSubConfig.getInt("cleaner-ttl"),
@@ -128,7 +171,8 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   private def initializeElasticConfig(): Unit = {
-    elasticConfig = retrieveConf(getDefaultElasticConfig, elasticConfigName).get
+    elasticConfig =
+      retrieveConf(getDefaultElasticConfig, elasticConfigName).get
   }
 
   private def initializeSolrConfig(): Unit = {
@@ -148,14 +192,14 @@ object ConfigManager extends BSONConversionHelper {
     val solrSubConfig = conf.getConfig("solrcloud")
     SolrConfigModel(
       readConnections(solrSubConfig, "connections"),
-      readConnections(solrSubConfig, "apiEndPoint").headOption,
+      Some(readApiEndPoint(solrSubConfig, "apiEndPoint")),
       solrConfigName,
       None,
       "wasp"
     )
   }
 
-	/**
+  /**
     * Initialize the configurations managed by this ConfigManager.
     */
   def initializeConfigs(): Unit = {
@@ -167,10 +211,10 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   /**
-   * Re-initialize the config manager, reading from file.
+    * Re-initialize the config manager, reading from file.
     *
     * @param file
-   */
+    */
   def reloadConfig(file: File): Unit = {
     conf = ConfigFactory.parseFile(file)
     initializeConfigs()
@@ -199,7 +243,8 @@ object ConfigManager extends BSONConversionHelper {
 
   def getSparkStreamingConfig = {
     if (sparkStreamingConfig == null) {
-      throw new Exception("The spark streaming configuration was not initialized")
+      throw new Exception(
+        "The spark streaming configuration was not initialized")
     }
     sparkStreamingConfig
   }
@@ -225,9 +270,15 @@ object ConfigManager extends BSONConversionHelper {
     mongoDBConfig
   }
 
-  private def readConnections(config: Config, path: String): Array[ConnectionConfig] = {
+  private def readConnections(config: Config,
+                              path: String): Array[ConnectionConfig] = {
     val connections = config.getConfigList(path).asScala
     connections map (connection => readConnection(connection)) toArray
+  }
+
+  private def readApiEndPoint(config: Config, path: String): ConnectionConfig = {
+    val connection = config.getConfig(path)
+    readConnection(connection)
   }
 
   private def readConnection(config: Config) = {
@@ -238,10 +289,11 @@ object ConfigManager extends BSONConversionHelper {
     }
 
     val metadata = if (config.hasPath("metadata")) {
-      val list : Iterable[ConfigObject] = config.getObjectList("metadata").asScala
+      val list: Iterable[ConfigObject] =
+        config.getObjectList("metadata").asScala
       val md = (for {
-        item : ConfigObject <- list
-        entry : Entry[String, ConfigValue] <- item.entrySet().asScala
+        item: ConfigObject <- list
+        entry: Entry[String, ConfigValue] <- item.entrySet().asScala
         key = entry.getKey
         value = entry.getValue.unwrapped().toString
       } yield (key, value)).toMap
@@ -259,21 +311,24 @@ object ConfigManager extends BSONConversionHelper {
     )
   }
 
-	/**
+  /**
     * Read the configuration with the specified name from MongoDB or, if it is not present, initialize
     * it with the provided defaults.
 		*/
-  private def retrieveConf[T](default: T, nameConf: String)
-                             (implicit typeTag: TypeTag[T],
-                              swriter: BSONDocumentWriter[T],
-                              sreader: BSONDocumentReader[T]): Option[T] = {
-    val document = WaspDB.getDB.getDocumentByField[T]("name", new BSONString(nameConf))
+  private def retrieveConf[T](default: T, nameConf: String)(
+      implicit typeTag: TypeTag[T],
+      swriter: BSONDocumentWriter[T],
+      sreader: BSONDocumentReader[T]): Option[T] = {
+    val document =
+      WaspDB.getDB.getDocumentByField[T]("name", new BSONString(nameConf))
     val awaitedDoc = Await.result(document, 5.seconds)
 
     //val result = document.flatMap(x => if (x.isEmpty) insert[T](default).map { x => Some(default) } else future { Some(default) })
     // A few more line of code but now is working as intended.
     if (awaitedDoc.isEmpty) {
-      WaspDB.getDB.insert[T](default).map(e => println(WriteResult.lastError(e).flatMap(_.errmsg)))
+      WaspDB.getDB
+        .insert[T](default)
+        .map(e => println(WriteResult.lastError(e).flatMap(_.errmsg)))
       Some(default)
     } else {
       awaitedDoc
@@ -281,7 +336,8 @@ object ConfigManager extends BSONConversionHelper {
   }
 
   def buildTimedName(prefix: String): String = {
-    val result = prefix + "-" + new SimpleDateFormat("yyyy.MM.dd").format(new Date())
+    val result = prefix + "-" + new SimpleDateFormat("yyyy.MM.dd")
+        .format(new Date())
 
     result
   }
@@ -307,7 +363,6 @@ case class ConnectionConfig(protocol: String,
     result + metadata.flatMap(_.get("zookeeperRootNode")).getOrElse("")
   }
 }
-
 
 trait SparkBatchConfiguration {
   lazy val sparkBatchConfig = ConfigManager.getSparkBatchConfig
