@@ -102,7 +102,7 @@ scriptClasspath += ":$HADOOP_CONF_DIR:$YARN_CONF_DIR"
 // set the name of the zip file
 packageName in Universal := name.value
 
-fork in run := false
+fork in run := true
 
 dependencyOverrides ++= Set(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4"
