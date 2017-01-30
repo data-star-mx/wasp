@@ -116,15 +116,15 @@ object HBaseWriter {
 	def getConvertPutFunc(hbaseModel: HbaseTableModel, avroConvertes: Map[String, RowToAvro]): (Row) => Put = {
 
 
-		val rowKeyInfo = hbaseModel.rowKey
+		val rowKeyInfo: Seq[RowKeyInfo] = hbaseModel.rowKey
 		val columnsInfo = hbaseModel.columns
 
 		(r: Row) => {
-			val key = ArrayBuffer[Byte]()
+			var key = Array[Byte]()
 			rowKeyInfo.foreach(v => {
-				key ++ convertToHBaseType(r,v.col, v.`type`)
+				key = Array.concat(key, convertToHBaseType(r,v.col, v.`type`))
 			})
-			val putMutation = new Put(key.toArray)
+			val putMutation = new Put(key)
 
 			columnsInfo.foreach((cfInfo: (String, Seq[Map[String, InfoCol]])) => {
 				val cfByteValue = Bytes.toBytes(cfInfo._1)

@@ -30,8 +30,8 @@ class RowToAvro(schema: StructType,
     val output = new ByteArrayOutputStream()
     val value = converter(row).asInstanceOf[GenericRecord]
     var writer = new DataFileWriter(new GenericDatumWriter[GenericRecord]())
-    writer.append(value)
     writer.create(schemaAvro, output)
+    writer.append(value)
     writer.flush()
     output.toByteArray
 
