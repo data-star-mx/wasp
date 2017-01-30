@@ -13,6 +13,7 @@ object ConfigBL {
   lazy val websocketBL: WebsocketBL = new WebsocketBLImp(WaspDB.getDB)
   lazy val batchSchedulerBL: BatchSchedulersBL = new BatchSchedulersBLImp(WaspDB.getDB)
   lazy val rawBL: RawBL = new RawBLImp(WaspDB.getDB)
+  lazy val keyValueBL: KeyValueBL = new KeyValueBLImp(WaspDB.getDB)
 
   def apply(waspDB: WaspDB): Object {val producerBL: ProducerBL; val batchJobBL: BatchJobBL; val mlModelBL: MlModelBL; val pipegraphBL: PipegraphBL; val topicBL: TopicBL; val indexBL: IndexBL} = {
     new Object() {
@@ -25,6 +26,7 @@ object ConfigBL {
       val websocketBL: WebsocketBL = new WebsocketBLImp(waspDB)
       val batchSchedulerBL: BatchSchedulersBL = new BatchSchedulersBLImp(waspDB)
       val rawBL: RawBL = new RawBLImp(waspDB)
+      val keyValueBL: KeyValueBL = new KeyValueBLImp(waspDB)
     }
   }
 

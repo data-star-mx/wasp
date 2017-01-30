@@ -26,6 +26,7 @@ object Settings extends Build {
 		"Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/", Resolver.mavenLocal,
     "Bintray" at "https://dl.bintray.com/agile-lab-dev/Spark-Solr/",
     "Restlet Maven repository" at "https://maven.restlet.com/",
+    "Hadoop Releases" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
 		Resolver.sonatypeRepo("releases"))
 
   lazy val defaultSettings = testSettings ++ Seq(
@@ -53,8 +54,8 @@ object Settings extends Build {
     parallelExecution in IntegrationTest := false,
     testOptions in Test ++= testOptionSettings,
     testOptions in IntegrationTest ++= testOptionSettings,
-    fork in Test := true,
-    fork in IntegrationTest := true,
+    fork in Test := false,
+    fork in IntegrationTest := false,
     (compile in IntegrationTest) <<= (compile in Test, compile in IntegrationTest) map { (_, c) => c },
     managedClasspath in IntegrationTest <<= Classpaths.concat(managedClasspath in IntegrationTest, exportedProducts in Test)
   )

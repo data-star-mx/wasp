@@ -169,6 +169,9 @@ object Dependencies {
       "it.agilelab.bigdata.spark" % "spark-solr" % SolrSpark sparkSolrExclusions
 
     val hbasespark = "org.apache.hbase" % "hbase-spark" % HBaseSpark
+    val hbasecommond = "org.apache.hbase" % "hbase-common" % HBaseSpark
+    val hbaseclient = "org.apache.hbase" % "hbase-client" % HBaseSpark
+    val hbaseserver = "org.apache.hbase" % "hbase-server" % HBaseSpark
 
     val asynchttpclient = "com.ning" % "async-http-client" % "1.9.39"
 
@@ -250,12 +253,16 @@ object Dependencies {
           camelKafka,
           camelWebsocket,
           camelElastic,
-          camelQuartz2)
+          camelQuartz2,
+          hbasespark,
+          hbaseclient,
+          hbaseserver,
+          hbasecommond)
 
   val wasp_examples = logging ++ spark ++
       Seq(playjson, playws, scalaj)
 
   /** These dependencies will get copied into spark-lib */
-  val sparkLibJava = Seq(kafkaClients, logback, logbackCore, zkclient, metrics, httpmime, avro, hbasespark) ++ apachesolr
+  val sparkLibJava = Seq(kafkaClients, logback, logbackCore, zkclient, metrics, httpmime, avro, hbasespark, hbaseclient, hbaseserver, hbasecommond) ++ apachesolr
   val sparkLibScala = Seq(elasticSearchSpark, kafka, kafkaStreaming, playjson) ++ json
 }
