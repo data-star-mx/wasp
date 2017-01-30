@@ -70,8 +70,9 @@ object Pipegraph_C extends WaspController {
           "configuration" -> optional(text))(
             (className, configuration) =>
               StrategyModel(className, configuration.flatMap(c => fromString(c))))(
-            s => Some(s.className, s.configuration.map(c => BSONFormats.toString(c))))))
-        ((name, inputs, output, mlModels, strategy) => ETLModel(name, inputs, output, mlModels, strategy))(e => Some(e.name, e.inputs, e.output, e.mlModels, e.strategy))
+            s => Some(s.className, s.configuration.map(c => BSONFormats.toString(c))))),
+        "kafkaAccessType" -> text)
+        ((name, inputs, output, mlModels, strategy, kafkaAccessType) => ETLModel(name, inputs, output, mlModels, strategy, kafkaAccessType))(e => Some(e.name, e.inputs, e.output, e.mlModels, e.strategy, e.kafkaAccessType))
       ),
       "rt" -> list(mapping(
         "name" -> text,

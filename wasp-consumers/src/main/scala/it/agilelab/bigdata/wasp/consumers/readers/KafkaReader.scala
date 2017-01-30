@@ -9,7 +9,7 @@ import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, ConfigManager, JsonT
 import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.dstream.{DStream, InputDStream, ReceiverInputDStream}
 import org.apache.spark.streaming.kafka.KafkaUtils
 
 /**
@@ -24,18 +24,19 @@ trait StreamingReader {
    * @param ssc Spark streaming context
    * @return a json encoded string
    */
-  def createStream(group: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String]
+  def createStream(group: String, accessType: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String]
 
 }
 object KafkaReader extends StreamingReader {
   val logger = WaspLogger(this.getClass.getName)
+
 
   /**
    * Kafka configuration
    */
 
   //TODO: check warning (not understood)
-  def createStream(group: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String] = {
+  def createStream(group: String, accessType: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String] = {
     val kafkaConfig = ConfigManager.getKafkaConfig
 
     val kafkaConfigMap: Map[String, String] = Map(
@@ -45,12 +46,20 @@ object KafkaReader extends StreamingReader {
 
 
     if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.name, topic.partitions, topic.replicas))) {
-      val receiver = KafkaUtils.createStream[String, Array[Byte], StringDecoder, DefaultDecoder](
-        ssc,
-        kafkaConfigMap + ("group.id" -> group),
-        Map(topic.name -> 3),
-        StorageLevel.MEMORY_AND_DISK_2
-      )
+
+      val receiver: DStream[(String, Array[Byte])] =  accessType match {
+        case "direct" => KafkaUtils.createDirectStream[String, Array[Byte], StringDecoder, DefaultDecoder](
+          ssc,
+          kafkaConfigMap + ("group.id" -> group) + ("metadata.broker.list" -> kafkaConfig.connections.mkString(",")),
+          Set(topic.name)
+        )
+        case "receiver-based" | _ => KafkaUtils.createStream[String, Array[Byte], StringDecoder, DefaultDecoder](
+          ssc,
+          kafkaConfigMap + ("group.id" -> group),
+          Map(topic.name -> 3),
+          StorageLevel.MEMORY_AND_DISK_2
+        )
+      }
 
       topic.topicDataType match {
         case "avro" => receiver.map(x => (x._1, AvroToJsonUtil.avroToJson(x._2))).map(_._2)

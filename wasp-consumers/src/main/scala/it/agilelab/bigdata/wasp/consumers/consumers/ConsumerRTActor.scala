@@ -20,13 +20,13 @@ case class StartRT()
 
 case class StopRT()
 
-class ConsumerRTActor(env:{val topicBL: TopicBL; val websocketBL: WebsocketBL; val indexBL: IndexBL},
+class ConsumerRTActor(env: {val topicBL: TopicBL; val websocketBL: WebsocketBL; val indexBL: IndexBL},
                       rt: RTModel,
                       listener: ActorRef)
-  extends Actor with ActorLogging  {
+  extends Actor with ActorLogging {
 
   val logger = WaspLogger(WaspKafkaReader.getClass.toString)
-  val strategy : Option[StrategyRT] = createStrategyRT(rt)
+  val strategy: Option[StrategyRT] = createStrategyRT(rt)
   lazy val kafkaReaders: List[Option[ActorRef]] = {
     rt.inputs.map { input =>
       val topicFut = env.topicBL.getById(input.id.stringify)
@@ -57,20 +57,41 @@ class ConsumerRTActor(env:{val topicBL: TopicBL; val websocketBL: WebsocketBL; v
       kafkaReaders
     }
     case StopRT => {
-      kafkaReaders.foreach{
+      kafkaReaders.foreach {
         kafkaReader =>
-        if(kafkaReader.isDefined){
-          context stop kafkaReader.get
-        }
+          if (kafkaReader.isDefined) {
+            context stop kafkaReader.get
+          }
       }
       epManagerActor ! PoisonPill
     }
 
     case (key: String, data: Array[Byte]) => {
-      // Convert to JSON before applying strategy
-      val jsonMsg = AvroToJsonUtil.avroToJson(data)
-      val outputJson = applyStrategy(key, jsonMsg)
-      epManagerActor ! outputJson
+
+      rt.inputs.foreach { input =>
+        val topicFut = env.topicBL.getById(input.id.stringify)
+        val topicOpt = Await.result(topicFut, WaspSystem.timeout.duration)
+
+        topicOpt.map(_.topicDataType) match {
+          case Some("avro") => {
+            val jsonMsg = AvroToJsonUtil.avroToJson(data)
+            val outputJson = applyStrategy(key, jsonMsg)
+            epManagerActor ! outputJson
+          }
+
+          case Some("json") => {
+            val jsonMsg = JsonToByteArrayUtil.byteArrayToJson(data)
+            val outputJson = applyStrategy(key, jsonMsg)
+            epManagerActor ! outputJson
+          }
+
+          case _ =>
+
+        }
+
+      }
+
+
     }
   }
 
@@ -81,7 +102,7 @@ class ConsumerRTActor(env:{val topicBL: TopicBL; val websocketBL: WebsocketBL; v
       strategy.transform(topic, data)
   }
 
-  def createStrategyRT(rt: RTModel) : Option[StrategyRT] = rt.strategy match {
+  def createStrategyRT(rt: RTModel): Option[StrategyRT] = rt.strategy match {
     case None => None
     case Some(strategyModel) =>
       val result = Class.forName(strategyModel.className).newInstance().asInstanceOf[StrategyRT]
@@ -100,6 +121,7 @@ class ConsumerRTActor(env:{val topicBL: TopicBL; val websocketBL: WebsocketBL; v
                   case o: Any => o.toString
                 })).toMap
           }
+
           BSON.readDocument[Map[String, Any]](configuration)
       }
       logger.info("strategyRT: " + result)
