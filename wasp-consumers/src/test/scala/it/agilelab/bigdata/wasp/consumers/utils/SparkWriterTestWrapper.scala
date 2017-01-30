@@ -54,7 +54,7 @@ class StreamingReaderTestWrapper(sc: SparkContext) extends StreamingReader {
    * @param ssc Spark streaming context
    * @return a json encoded string
    */
-  override def createStream(group: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String] = {
+  override def createStream(group: String, accessType: String, topic: TopicModel)(implicit ssc: StreamingContext): DStream[String] = {
     ssc.queueStream(lines)
   }
 

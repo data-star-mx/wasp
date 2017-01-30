@@ -7,7 +7,7 @@ case class DashboardModel(url: String, needsFilterBox: Boolean)
 
 case class StrategyModel(className: String, configuration: Option[BSONDocument] = None)
 
-case class ETLModel(name: String, inputs: List[ReaderModel], output: WriterModel, mlModels: List[MlModelOnlyInfo], strategy: Option[StrategyModel], group: String = "default", var isActive: Boolean = true)
+case class ETLModel(name: String, inputs: List[ReaderModel], output: WriterModel, mlModels: List[MlModelOnlyInfo], strategy: Option[StrategyModel], kafkaAccessType: String, group: String = "default", var isActive: Boolean = true)
 
 case class RTModel(name: String, inputs: List[ReaderModel], var isActive: Boolean = true, strategy: Option[StrategyModel] = None, endpoint: Option[WriterModel] = None)
 
@@ -52,3 +52,8 @@ case class PipegraphModel(override val name: String,
                           dashboard: Option[DashboardModel] = None,
                           var isActive: Boolean = true,
                           _id: Option[BSONObjectID] = None) extends Model
+
+object ETLModel {
+  val KAFKA_ACCESS_TYPE_DIRECT = "direct"
+  val KAFKA_ACCESS_TYPE_RECEIVED_BASED = "receiver-based"
+}
