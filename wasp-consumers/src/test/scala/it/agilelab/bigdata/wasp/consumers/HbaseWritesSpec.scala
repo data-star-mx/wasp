@@ -6,12 +6,10 @@ import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, RowToAvro}
 import org.apache.avro.Schema
 import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.sql.types.{DataType, StructType}
 import org.scalatest.Matchers._
-import org.scalatest.{BeforeAndAfter, _}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{BeforeAndAfter, _}
 
 /**
   * Created by mattiabertorello on 27/01/17.

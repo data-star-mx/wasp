@@ -63,6 +63,7 @@ class WaspDBImp(protected val driver: MongoDriver,
   val topicsName = "topics"
   val indexesName = "indexes"
   val rawName = "raw"
+  val keyValueName = "keyvalues"
   val batchjobName = "batchjobs"
   val configurationsName = "configurations"
   val mlModelsName = "mlmodels"
@@ -76,6 +77,7 @@ class WaspDBImp(protected val driver: MongoDriver,
     typeTag[TopicModel].tpe -> collection(topicsName),
     typeTag[IndexModel].tpe -> collection(indexesName),
     typeTag[RawModel].tpe -> collection(rawName),
+    typeTag[KeyValueModel].tpe -> collection(keyValueName),
     typeTag[BatchJobModel].tpe -> collection(batchjobName),
     typeTag[MlModelOnlyInfo].tpe -> collection(mlModelsName),
     typeTag[KafkaConfigModel].tpe -> collection(configurationsName),

@@ -26,7 +26,10 @@ object ConsumersMasterGuardian {
   val name = "ConsumerMasterGuardian"
 }
 
-class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: PipegraphBL; val topicBL: TopicBL; val indexBL: IndexBL; val rawBL : RawBL; val websocketBL: WebsocketBL; val mlModelBL: MlModelBL;},
+class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: PipegraphBL;
+  val topicBL: TopicBL; val indexBL: IndexBL;
+  val rawBL : RawBL; val keyValueBL: KeyValueBL;
+  val websocketBL: WebsocketBL; val mlModelBL: MlModelBL;},
                               sparkWriterFactory: SparkWriterFactory,
                                streamingReader: StreamingReader)
   extends ClusterAwareNodeGuardian with SparkStreamingConfiguration with Stash {
