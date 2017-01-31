@@ -88,6 +88,7 @@ object HBaseWriter {
 		typeName match {
 			case "string" => Bytes.toBytes(value.getAs[String](colName))
 			case "long" => Bytes.toBytes(value.getAs[Long](colName))
+			case "int" => Bytes.toBytes(value.getAs[Int](colName))
 			case "double" => Bytes.toBytes(value.getAs[Double](colName))
 		}
 	}
@@ -163,15 +164,22 @@ class HBaseStreamingWriter(hbaseModel: KeyValueModel,
 		val hBaseContext = new HBaseContext(ssc.sparkContext, hBaseConfiguration)
 		//TODO Write a validator of the data converter configurations
 		val hbaseDataConfig = HBaseWriter.getHbaseConfDataConvert(hbaseModel.schema)
-		val hbaseTable = TableName.valueOf(s"${hbaseDataConfig.table.namespace}:${hbaseDataConfig.table.name}")
 		val schema: StructType = DataType.fromJson(hbaseModel.dataFrameSchema).asInstanceOf[StructType]
 
-		val rowAvroConverters: Map[String, RowToAvro] = hbaseModel.avroSchemas.map(_.mapValues(v => {
-				new RowToAvro(schema, new Schema.Parser().parse(v))
+		val avroSchemas = hbaseModel.avroSchemas
+
+		//Validation
+		avroSchemas.map(_.mapValues(v => {
+			new RowToAvro(schema, v)
 		})).getOrElse(Map[String, RowToAvro]())
 
 		stream.foreachRDD {
 			rdd =>
+				val rowAvroConverters: Map[String, RowToAvro] = avroSchemas.map(_.mapValues(v => {
+					new RowToAvro(schema, v)
+				})).getOrElse(Map[String, RowToAvro]()).map(identity).toMap
+
+				val hbaseTable = TableName.valueOf(s"${hbaseDataConfig.table.namespace}:${hbaseDataConfig.table.name}")
 				// create df from rdd using provided schema & spark's json datasource
 				val df: DataFrame = sqlContext.read.schema(schema).json(rdd)
 				import org.apache.hadoop.hbase.spark.HBaseRDDFunctions._
@@ -206,7 +214,7 @@ class HBaseWriter(hbaseModel: KeyValueModel,
 		val schema: StructType = DataType.fromJson(hbaseModel.dataFrameSchema).asInstanceOf[StructType]
 
 		val rowAvroConverters: Map[String, RowToAvro] = hbaseModel.avroSchemas.map(_.mapValues(v => {
-			new RowToAvro(schema, new Schema.Parser().parse(v))
+			new RowToAvro(schema, v)
 		})).getOrElse(Map[String, RowToAvro]())
 
 		import org.apache.hadoop.hbase.spark.HBaseRDDFunctions._

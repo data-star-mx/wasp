@@ -21,10 +21,13 @@ import org.apache.spark.sql.types._
 
 import scala.collection.immutable.Map
 
-class RowToAvro(schema: StructType,
-                schemaAvro: Schema)   {
+case class RowToAvro(schema: StructType,
+                schemaAvroJson: String)  {
 
-  private lazy val converter = createConverterToAvro(schema, schemaAvro)
+  private lazy val schemaAvro: Schema = new Schema.Parser().parse(schemaAvroJson)
+
+  private lazy val converter: (Any) => Any = createConverterToAvro(schema, schemaAvro)
+
 
   def write(row: Row): Array[Byte] = {
     val output = new ByteArrayOutputStream()
@@ -99,7 +102,11 @@ class RowToAvro(schema: StructType,
 
             while (convertersIterator.hasNext) {
               val converter = convertersIterator.next()
-              record.put(fieldNamesIterator.next(), converter(rowIterator.next()))
+              val fieldName = fieldNamesIterator.next()
+              if (schema.getField(fieldName) != null) {
+                record.put(fieldName, converter(rowIterator.next()))
+
+              }
             }
             record
           }
