@@ -24,6 +24,8 @@ object WriterModel {
 
   def IndexWriter(id_index: BSONObjectID, name: String, product: String) = WriterModel(id_index, name, WriteType("index", product))
 
+  def keyValueWriter(id_index: BSONObjectID, name: String, product: String) = WriterModel(id_index, name, WriteType("hbase", "hbase"))
+
   def TopicWriter(id_topic: BSONObjectID, name: String) = WriterModel(id_topic, name, WriteType("topic", "kafka"))
 
   def WebSocketWriter(id_websocket: BSONObjectID, name: String) = WriterModel(id_websocket, name, WriteType("websocket", "websocket"))
