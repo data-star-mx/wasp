@@ -88,7 +88,7 @@ class BatchJobsSpec extends SparkFlatSpec with BeforeAndAfter {
         Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.strategies.DummyBatchStrategy"))),*/
       etl = ETLModel(
           "empty", List(),
-          WriterModel.IndexWriter(batchOutputIndex._id.get, batchOutputIndex.name), List(), None),
+          WriterModel.IndexWriter(batchOutputIndex._id.get, batchOutputIndex.name), List(), None, kafkaAccessType = ETLModel.KAFKA_ACCESS_TYPE_RECEIVED_BASED),
         state = JobStateEnum.PENDING,
         _id = Some(BSONObjectID.generate))
   }
