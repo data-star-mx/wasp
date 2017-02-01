@@ -5,7 +5,7 @@ import it.agilelab.bigdata.wasp.core.WaspSystem._
 import it.agilelab.bigdata.wasp.core.bl.TopicBL
 import it.agilelab.bigdata.wasp.core.kafka.{CheckOrCreateTopic, WaspKafkaWriter}
 import it.agilelab.bigdata.wasp.core.models.configuration.TinyKafkaConfig
-import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, ConfigManager}
+import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, ConfigManager, JsonToByteArrayUtil}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import reactivemongo.bson.BSONDocument
@@ -34,8 +34,13 @@ class KafkaSparkStreamingWriter(env: {val topicBL: TopicBL}, ssc: StreamingConte
             val writer = WorkerKafkaWriter.writer(configB.value)
 
             partitionOfRecords.foreach(record => {
-              val bytes = AvroToJsonUtil.jsonToAvro(record, schemaB.value)
+              val bytes = topic.topicDataType match {
+                case "json" => JsonToByteArrayUtil.jsonToByteArray(record)
+                case "avro" => AvroToJsonUtil.jsonToAvro(record, schemaB.value)
+                case _ => AvroToJsonUtil.jsonToAvro(record, schemaB.value)
+              }
               writer.send(topicNameB.value, "partitionKey", bytes)
+
             })
 
             writer.close()
