@@ -1,15 +1,15 @@
 package it.agilelab.bigdata.wasp.consumers.writers
 
 import com.typesafe.config.{Config, ConfigFactory}
-import it.agilelab.bigdata.wasp.core.bl.{IndexBL, RawBL, TopicBL}
+import it.agilelab.bigdata.wasp.core.bl.{IndexBL, KeyValueBL, RawBL, TopicBL}
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.WriterModel
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
 trait SparkWriterFactory {
-  def createSparkWriterStreaming(env: {val indexBL: IndexBL; val topicBL: TopicBL; val rawBL: RawBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter]
-  def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter]
+  def createSparkWriterStreaming(env: {val indexBL: IndexBL; val topicBL: TopicBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter]
+  def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter]
 }
 
 object SparkWriterFactoryDefault extends SparkWriterFactory {
@@ -17,7 +17,7 @@ object SparkWriterFactoryDefault extends SparkWriterFactory {
   val conf: Config = ConfigFactory.load
   val defaultDataStoreIndexed = conf.getString("default.datastore.indexed")
 
-  override def createSparkWriterStreaming(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL: RawBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter] = {
+  override def createSparkWriterStreaming(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter] = {
 
 
     writerModel.writerType.wtype match {
@@ -30,13 +30,14 @@ object SparkWriterFactoryDefault extends SparkWriterFactory {
       }
       case "topic" => Some(new KafkaSparkStreamingWriter(env, ssc, writerModel.id.stringify))
       case "raw" => RawWriter.createSparkStreamingWriter(env, ssc, writerModel.id.stringify)
+      case "hbase" => HBaseWriter.createSparkStreamingWriter(env, ssc, writerModel.id.stringify)
       case _ =>
         logger.error(s"Invalid spark streaming writer type, writer model: $writerModel")
         None
     }
   }
 
-  override def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter] = {
+  override def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter] = {
     writerModel.writerType.wtype match {
       case "index" => {
         defaultDataStoreIndexed match {
@@ -46,6 +47,7 @@ object SparkWriterFactoryDefault extends SparkWriterFactory {
         }
       }
       case "raw" => RawWriter.createSparkWriter(env, sc, writerModel.id.stringify)
+      case "hbase" => HBaseWriter.createSparkWriter(env, sc, writerModel.id.stringify)
       case _ =>
         logger.error(s"Invalid spark writer type, writer model: $writerModel")
         None

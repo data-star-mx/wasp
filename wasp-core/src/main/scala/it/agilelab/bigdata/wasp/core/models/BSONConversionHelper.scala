@@ -68,6 +68,9 @@ trait BSONConversionHelper {
   
   implicit val readerRawOptions: BSONDocumentReader[RawOptions] = Macros.reader[RawOptions]
   implicit val writerRawOptions: BSONDocumentWriter[RawOptions] = Macros.writer[RawOptions]
+
+  implicit val readerKeyValueModel: BSONDocumentReader[KeyValueModel] = Macros.reader[KeyValueModel]
+  implicit val writerKeyValueModel: BSONDocumentWriter[KeyValueModel] = Macros.writer[KeyValueModel]
   
   implicit val readerBatchSchedulerModel: BSONDocumentReader[BatchSchedulerModel] = Macros.reader[BatchSchedulerModel]
   implicit val writerBatchSchedulerModel: BSONDocumentWriter[BatchSchedulerModel] = Macros.writer[BatchSchedulerModel]

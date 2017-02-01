@@ -12,7 +12,7 @@ import org.scalatest.{ConfigMap, BeforeAndAfterAllConfigMap, BeforeAndAfter, Fla
 /**
  * Created by Mattia Bertorello on 30/09/15.
  */
-class SparkFlatSpec extends FlatSpec with BeforeAndAfterAllConfigMap with ScalaFutures  {
+trait SparkFlatSpec extends FlatSpec with BeforeAndAfterAllConfigMap with ScalaFutures  {
   private val master = "local[2]"
   private val appName = "example-spark-streaming"
   private val batchDuration = Seconds(1)

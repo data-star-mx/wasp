@@ -178,5 +178,12 @@ class AllBLsTestWrapper {
   
     override def persist(rawModel: RawModel): Future[LastError] = ???
   }
+
+  val keyValueBL = new KeyValueBL {override def getByName(name: String) = ???
+
+    override def persist(rawModel: KeyValueModel) = ???
+
+    override def getById(id: String) = ???
+  }
 }
 

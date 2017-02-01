@@ -54,11 +54,11 @@ object WaspSystem {
         case None => throw new UnknownError("Unknown Error during zookeeper connection initialization")
       }
 
-      val defaultDataStoreIndexed = conf.getString("default.datastore.indexed")
+      val defaultDataStoreIndexed = Option(conf.getString("default.datastore.indexed"))
 
       /* Start the default indexed datastore. */
 
-      defaultDataStoreIndexed match {
+      defaultDataStoreIndexed.getOrElse("") match {
         case "elastic" => {
           log.info(s"Trying to connect with Elastic...")
           startupElastic(wasptimeout)
@@ -68,13 +68,32 @@ object WaspSystem {
           startupSolr(wasptimeout)
         }
         case _ => {
-          log.error("No datastore configurated!")
-          throw new UnsupportedOperationException("No datastore configurated!")
+          log.error("No Indexed datastore configurated!")
         }
       }
 
+      val defaultDataStoreKeyValue = Option(conf.getString("default.datastore.keyvalue"))
+
+      defaultDataStoreKeyValue.getOrElse("") match {
+        case "hbase" => {
+          log.info(s"Trying to connect with HBase...")
+          startupHBase(wasptimeout)
+        }
+        case _ => {
+          log.error("No KeyValue datastore configurated!")
+        }
+      }
+      if (defaultDataStoreIndexed.isEmpty && defaultDataStoreKeyValue.isEmpty) {
+        log.error("No datastore configurated!")
+        throw new UnsupportedOperationException("No datastore configurated! Configure a KeyValue or a Indexed datastore")
+      }
     }
   }
+
+  private def startupHBase(wasptimeout: Long) = {
+    //TODO Initialize the HBase configurations and test if It's up
+  }
+
 
   private def startupElastic(wasptimeout: Long)(implicit timeout: Timeout) = {
     //TODO if elasticConfig are not initialized skip the initialization

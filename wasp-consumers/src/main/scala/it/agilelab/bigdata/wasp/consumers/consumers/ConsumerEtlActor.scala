@@ -8,7 +8,7 @@ import it.agilelab.bigdata.wasp.consumers.strategies.{ReaderKey, Strategy}
 import it.agilelab.bigdata.wasp.consumers.writers.SparkWriterFactory
 import it.agilelab.bigdata.wasp.core.WaspEvent.OutputStreamInitialized
 import it.agilelab.bigdata.wasp.core.WaspSystem._
-import it.agilelab.bigdata.wasp.core.bl.{IndexBL, MlModelBL, RawBL, TopicBL}
+import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models._
 import org.apache.spark.sql.DataFrame
@@ -20,7 +20,7 @@ import scala.concurrent.{Await, Future}
 
 
 
-class ConsumerEtlActor(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL : RawBL; val mlModelBL: MlModelBL},
+class ConsumerEtlActor(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL : RawBL; val keyValueBL: KeyValueBL; val mlModelBL: MlModelBL},
                        sparkWriterFactory: SparkWriterFactory,
                        streamingReader: StreamingReader,
                        ssc: StreamingContext,

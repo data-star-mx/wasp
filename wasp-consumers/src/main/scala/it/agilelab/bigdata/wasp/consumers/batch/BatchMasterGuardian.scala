@@ -29,7 +29,7 @@ object BatchMasterGuardian {
   val name = "BatchMasterGuardian"
 }
 
-class BatchMasterGuardian(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL; val mlModelBL: MlModelBL; val batchSchedulerBL: BatchSchedulersBL},
+class BatchMasterGuardian(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL;  val keyValueBL: KeyValueBL; val mlModelBL: MlModelBL; val batchSchedulerBL: BatchSchedulersBL},
                            sparkWriterFactory: SparkWriterFactory)
   extends ClusterAwareNodeGuardian  with Stash with SparkBatchConfiguration {
 

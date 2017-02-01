@@ -6,7 +6,7 @@ import it.agilelab.bigdata.wasp.consumers.readers.{HDFSReader, IndexReader, RawR
 import it.agilelab.bigdata.wasp.consumers.strategies.{ReaderKey, Strategy}
 import it.agilelab.bigdata.wasp.consumers.writers.{SparkWriter, SparkWriterFactory}
 import it.agilelab.bigdata.wasp.core.WaspSystem._
-import it.agilelab.bigdata.wasp.core.bl.{BatchJobBL, IndexBL, MlModelBL, RawBL}
+import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models._
 import org.apache.spark.SparkContext
@@ -20,7 +20,7 @@ object BatchJobActor {
   val name = "BatchJobActor"
 }
 
-class BatchJobActor(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL; val mlModelBL: MlModelBL},
+class BatchJobActor(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL;  val keyValueBL: KeyValueBL; val mlModelBL: MlModelBL},
                     sparkWriterFactory: SparkWriterFactory,
                     sc: SparkContext) extends Actor with ActorLogging {
 
