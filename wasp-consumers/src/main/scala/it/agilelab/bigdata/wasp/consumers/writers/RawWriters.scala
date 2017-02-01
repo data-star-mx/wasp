@@ -65,27 +65,27 @@ class HDFSSparkStreamingWriter(hdfsModel: RawModel,
   override def write(stream: DStream[String]): Unit = {
     // get sql context
     val sqlContext = SQLContext.getOrCreate(ssc.sparkContext)
-    
+		val hdfsModelLocal = hdfsModel
     stream.foreachRDD {
       rdd =>
         // create df from rdd using provided schema & spark's json datasource
-        val schema: StructType = DataType.fromJson(hdfsModel.schema).asInstanceOf[StructType]
+        val schema: StructType = DataType.fromJson(hdfsModelLocal.schema).asInstanceOf[StructType]
         val df = sqlContext.read.schema(schema).json(rdd)
         
         // calculate path
-        val path = if (hdfsModel.timed) {
+        val path = if (hdfsModelLocal.timed) {
           // the path must be timed; add timed subdirectory
-          val hdfsPath = new Path(hdfsModel.uri)
+          val hdfsPath = new Path(hdfsModelLocal.uri)
           val timedPath = new Path(hdfsPath.toString + "/" + ConfigManager.buildTimedName("").substring(1) + "/")
           
           timedPath.toString
         } else {
           // the path is not timed; return it as-is
-          hdfsModel.uri
+					hdfsModelLocal.uri
         }
         
         // get options
-        val options = hdfsModel.options
+        val options = hdfsModelLocal.options
         val mode = if (options.saveMode == "default") "append" else options.saveMode
         val format = options.format
         val extraOptions = options.extraOptions.getOrElse(Map())
