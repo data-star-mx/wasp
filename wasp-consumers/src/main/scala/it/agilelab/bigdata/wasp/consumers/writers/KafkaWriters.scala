@@ -31,7 +31,11 @@ class KafkaSparkStreamingWriter(env: {val topicBL: TopicBL}, ssc: StreamingConte
 
         stream.foreachRDD(rdd => {
           rdd.foreachPartition(partitionOfRecords => {
-            val writer = WorkerKafkaWriter.writer(configB.value)
+
+            // TODO remove ???
+            // val writer = WorkerKafkaWriter.writer(configB.value)
+
+            val writer = new WaspKafkaWriter[String, Array[Byte]](configB.value)
 
             partitionOfRecords.foreach(record => {
               val bytes = topic.topicDataType match {
@@ -65,6 +69,7 @@ object WorkerKafkaWriter {
 	
 	object ProducerObject {
 		var config: TinyKafkaConfig = _
+    // TODO unused!
 		lazy val writer = new WaspKafkaWriter[String, Array[Byte]](config)
 	}
 	
