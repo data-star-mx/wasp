@@ -104,6 +104,6 @@ packageName in Universal := name.value
 
 fork in run := true
 
-dependencyOverrides ++= Set(
+dependencyOverrides in ThisBuild ++= Set(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4"
 )
