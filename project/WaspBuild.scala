@@ -21,8 +21,8 @@ object WaspBuild extends Build {
     base = file("./wasp-webapp"),
     settings = defaultSettings
   ).enablePlugins(play.PlayScala)
-    .settings {
-      libraryDependencies ++= Dependencies.wasp_web
+    .settings(
+      libraryDependencies ++= Dependencies.wasp_web,
       // add play assets jar to published artifacts
       packagedArtifacts in publishLocal := {
         val artifacts: Map[sbt.Artifact, java.io.File] =
@@ -30,49 +30,48 @@ object WaspBuild extends Build {
         val assets: java.io.File = (playPackageAssets in Compile).value
         artifacts + (Artifact(moduleName.value, "jar", "jar", "assets") -> assets)
       }
-    }
+    )
     .dependsOn(Core, Consumers, Producers)
 
   lazy val Core = Project(
     id = "Core",
     base = file("./wasp-core"),
     settings = defaultSettings
-  ).settings {
+  ).settings(
     libraryDependencies ++= Dependencies.wasp_core
-  }.configs(IntegrationTest)
+  ).configs(IntegrationTest)
 
   lazy val Consumers = Project(
     id = "Consumers",
     base = file("./wasp-consumers"),
     settings = defaultSettings
-  ).settings {
+  ).settings(
     libraryDependencies ++= Dependencies.wasp_consumers
-  }.dependsOn(Core).configs(IntegrationTest)
+  ).dependsOn(Core).configs(IntegrationTest)
 
   lazy val Producers = Project(
     id = "Producers",
     base = file("./wasp-producers"),
     settings = defaultSettings
-  ).settings {
+  ).settings(
     libraryDependencies ++= Dependencies.wasp_producers
-  }.dependsOn(Core).configs(IntegrationTest)
+  ).dependsOn(Core).configs(IntegrationTest)
 
   lazy val Launcher = Project(
     id = "Launcher",
     base = file("./wasp-launcher"),
     settings = defaultSettings
-  ).settings {
+  ).settings(
     libraryDependencies ++= Dependencies.play
-  }.dependsOn(Core, Consumers, WebApp).configs(IntegrationTest)
+  ).dependsOn(Core, Consumers, WebApp).configs(IntegrationTest)
 
   lazy val Examples = Project(
     id = "Examples",
     base = file("./wasp-examples"),
     settings = defaultSettings
-  ).settings {
+  ).settings(
     libraryDependencies ++= Dependencies.wasp_examples
-  }.dependsOn(Core, Launcher)
-
+  ).dependsOn(Core, Launcher)
 }
 
 object Dependencies {
