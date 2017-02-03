@@ -17,3 +17,8 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.1")
  * Play Framework plugins
  */
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.8")
+
+/*
+ * Bintray publishing plugin
+ */
+addSbtPlugin("me.lessis" % "bintray-sbt" % "0.3.0")

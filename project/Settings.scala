@@ -2,6 +2,7 @@ import scala.language.postfixOps
 
 import sbt._
 import sbt.Keys._
+import _root_.bintray.BintrayKeys._
 
 object Settings extends Build {
 
@@ -29,7 +30,7 @@ object Settings extends Build {
     "Hadoop Releases" at "https://repository.cloudera.com/artifactory/cloudera-repos/",
 		Resolver.sonatypeRepo("releases"))
 
-  lazy val defaultSettings = testSettings ++ Seq(
+  lazy val defaultSettings = testSettings ++ bintraySettings ++ Seq(
 	  resolvers ++= customResolvers,
     autoCompilerPlugins := true,
     // export jars instead of classes for run/etc (needed to export wasp jars into spark-lib/managed)
@@ -60,5 +61,14 @@ object Settings extends Build {
     managedClasspath in IntegrationTest <<= Classpaths.concat(managedClasspath in IntegrationTest, exportedProducts in Test)
   )
 
+  // settings for the bintray-sbt plugin used to publish to Bintray
+  // set here because "in ThisBuild" scoping doesn't work!
+  val bintraySettings = Seq(
+    bintrayOrganization := Some("agile-lab-dev"), // target organization
+    bintrayRepository := "WASP", // target repo
+    bintrayPackage := "wasp", // target package
+    bintrayOmitLicense := true, // omit license info
+    bintrayReleaseOnPublish := false // do not automatically release, instead do sbt publish, then sbt bintrayRelease
+  )
 
 }
