@@ -28,6 +28,7 @@ class KafkaSparkStreamingWriter(env: {val topicBL: TopicBL}, ssc: StreamingConte
         val schemaB = ssc.sparkContext.broadcast(BSONFormats.toString(topic.schema.getOrElse(BSONDocument())))
         val configB = ssc.sparkContext.broadcast(ConfigManager.getKafkaConfig.toTinyConfig())
         val topicNameB = ssc.sparkContext.broadcast(topic.name)
+	      val topicDataTypeB = ssc.sparkContext.broadcast(topic.topicDataType)
 
         stream.foreachRDD(rdd => {
           rdd.foreachPartition(partitionOfRecords => {
@@ -38,7 +39,7 @@ class KafkaSparkStreamingWriter(env: {val topicBL: TopicBL}, ssc: StreamingConte
             val writer = new WaspKafkaWriter[String, Array[Byte]](configB.value)
 
             partitionOfRecords.foreach(record => {
-              val bytes = topic.topicDataType match {
+              val bytes = topicDataTypeB.value match {
                 case "json" => JsonToByteArrayUtil.jsonToByteArray(record)
                 case "avro" => AvroToJsonUtil.jsonToAvro(record, schemaB.value)
                 case _ => AvroToJsonUtil.jsonToAvro(record, schemaB.value)
