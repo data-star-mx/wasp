@@ -84,12 +84,16 @@ object HBaseWriter {
 		HbaseTableModel(result, rowKey, columns)
 	}
 
-	def convertToHBaseType(value: Row, colName: String, typeName: String): Array[Byte] = {
-		typeName match {
-			case "string" => Bytes.toBytes(value.getAs[String](colName))
-			case "long" => Bytes.toBytes(value.getAs[Long](colName))
-			case "int" => Bytes.toBytes(value.getAs[Int](colName))
-			case "double" => Bytes.toBytes(value.getAs[Double](colName))
+	def convertToHBaseType(value: Row, colIdentifier: Int, typeName: String): Array[Byte] = {
+		if (!value.isNullAt(colIdentifier)) {
+			typeName match {
+				case "string" => Bytes.toBytes(value.getAs[String](colIdentifier))
+				case "long" => Bytes.toBytes(value.getAs[Long](colIdentifier))
+				case "int" => Bytes.toBytes(value.getAs[Int](colIdentifier))
+				case "double" => Bytes.toBytes(value.getAs[Double](colIdentifier))
+			}
+		} else {
+			Array[Byte]()
 		}
 	}
 	def getQualifier(qualfier: String, infoCol: InfoCol, r: Row): Array[Byte] = {
@@ -107,7 +111,8 @@ object HBaseWriter {
 	}
 	def getValue(infoCol: InfoCol, r: Row, avroConvertes: Map[String, RowToAvro]): Array[Byte] = {
 		if (infoCol.mappingType == "oneToOne" ) {
-			convertToHBaseType(r, infoCol.col.get, infoCol.`type`.get)
+			val fieldIdentifier = r.fieldIndex(infoCol.col.get)
+			convertToHBaseType(r, fieldIdentifier, infoCol.`type`.get)
 		} else if (infoCol.mappingType == "oneToMany" && infoCol.pivotCol.isDefined ){
 			avroConvertes(infoCol.avro.get).write(r)
 		} else {
@@ -123,7 +128,11 @@ object HBaseWriter {
 		(r: Row) => {
 			var key = Array[Byte]()
 			rowKeyInfo.foreach(v => {
-				key = Array.concat(key, convertToHBaseType(r,v.col, v.`type`))
+				val fieldIdentifier = r.fieldIndex(v.col)
+				if (r.isNullAt(fieldIdentifier)){
+					throw new IllegalArgumentException(s"""The field "$fieldIdentifier" is a part of the row key so it cannot be null. $r""")
+				}
+				key = Array.concat(key, convertToHBaseType(r, fieldIdentifier, v.`type`))
 			})
 			val putMutation = new Put(key)
 
@@ -181,7 +190,8 @@ class HBaseStreamingWriter(hbaseModel: KeyValueModel,
 
 				val hbaseTable = TableName.valueOf(s"${hbaseDataConfig.table.namespace}:${hbaseDataConfig.table.name}")
 				// create df from rdd using provided schema & spark's json datasource
-				val df: DataFrame = sqlContext.read.schema(schema).json(rdd)
+				// Deleted .schema(schema)
+				val df: DataFrame = sqlContext.read.json(rdd)
 				import org.apache.hadoop.hbase.spark.HBaseRDDFunctions._
 
 				val conversionFunction: (Row) => Put = HBaseWriter.getConvertPutFunc(hbaseDataConfig, rowAvroConverters)
