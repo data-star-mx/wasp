@@ -42,7 +42,7 @@ function get_highest_container_number_for_service {
     declare HIGHEST_NUMBER_CONTAINER=$(echo "$ALL_CONTAINERS" |
         sort -t '/' -k 2 | # split on / names like */wasp-service-0000, sort only on the wasp-service-0000 part
         tail -n 1) # get the last one
-    declare -i HIGHEST_NUMBER=$(get_container_number $HIGHEST_NUMBER_CONTAINER) # parse container name, get number
+    declare HIGHEST_NUMBER=$(get_container_number $HIGHEST_NUMBER_CONTAINER) # parse container name, get number
 
     echo "$HIGHEST_NUMBER"
 }
@@ -113,8 +113,8 @@ function start_container {
     # restart stopped container or start new one if none exists
     if [[ -z "$WINNER_ID" ]]; then # no stopped container; start new container
         # generate number for new container
-        declare -i HIGHEST_NUMBER=$(get_highest_container_number_for_service $SERVICE_NAME)
-        declare -i NEW_NUMBER=$((HIGHEST_NUMBER+1)) # within double parenthesis, parameter dereferencing is optional
+        declare HIGHEST_NUMBER=$(get_highest_container_number_for_service $SERVICE_NAME)
+        declare NEW_NUMBER=$((10#$HIGHEST_NUMBER+1)) # 10# is needed because otherwise leading zeroes cause numbers to read as octal
 
         # generate padded container number new container
         declare NEW_NAME=$(generate_container_name $SERVICE_NAME $NEW_NUMBER)
