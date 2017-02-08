@@ -186,8 +186,13 @@ class MlModelsSpec extends SparkFlatSpec with BeforeAndAfter {
 
 
     val etl = ETLModel(
-      "write on index", List(ReaderModel(topicBLId, MlModelsSpecBatchModelMaker.nameDF, "topic")),
-      WriterModel.IndexWriter(BSONObjectID.generate, "TestIndex"), List(mlModelOnlyInfo) , Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.MlModelsSpecConsumerModelMaker")))
+      "write on index",
+      List(ReaderModel(topicBLId, MlModelsSpecBatchModelMaker.nameDF, "topic")),
+      WriterModel.IndexWriter(BSONObjectID.generate, "TestIndex"),
+      List(mlModelOnlyInfo),
+      Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.MlModelsSpecConsumerModelMaker")),
+      ETLModel.KAFKA_ACCESS_TYPE_RECEIVED_BASED
+    )
 
     val actorRefMaster = TestActorRef(new Actor {
       def receive = {
@@ -242,8 +247,13 @@ class MlModelsSpec extends SparkFlatSpec with BeforeAndAfter {
         WriterModel.IndexWriter(IndexModel.loggerIndex._id.get),
         Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.strategies.DummyBatchStrategy"))),*/
       etl = ETLModel(
-        "empty", List(),
-        WriterModel.IndexWriter(batchOutputIndex._id.get, batchOutputIndex.name), List[MlModelOnlyInfo](), Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.MlModelsSpecBatchModelMaker"))),
+        "empty",
+        List(),
+        WriterModel.IndexWriter(batchOutputIndex._id.get, batchOutputIndex.name),
+        List[MlModelOnlyInfo](),
+        Some(StrategyModel("it.agilelab.bigdata.wasp.consumers.MlModelsSpecBatchModelMaker")),
+        ETLModel.KAFKA_ACCESS_TYPE_RECEIVED_BASED
+      ),
       state = JobStateEnum.PENDING,
       _id = Some(BSONObjectID.generate))
   }

@@ -1,8 +1,8 @@
 package it.agilelab.bigdata.wasp.consumers.utils
 
 import it.agilelab.bigdata.wasp.consumers.readers.StreamingReader
-import it.agilelab.bigdata.wasp.consumers.writers.{SparkWriterFactory, SparkWriter, SparkStreamingWriter}
-import it.agilelab.bigdata.wasp.core.bl.{IndexBL, RawBL, TopicBL}
+import it.agilelab.bigdata.wasp.consumers.writers.{SparkStreamingWriter, SparkWriter, SparkWriterFactory}
+import it.agilelab.bigdata.wasp.core.bl.{IndexBL, KeyValueBL, RawBL, TopicBL}
 import it.agilelab.bigdata.wasp.core.models.{TopicModel, WriterModel}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -21,7 +21,7 @@ class SparkWriterTestWrapper extends SparkWriterFactory {
 
   val resultSparkStreamingWriter = new ListBuffer[String]
 
-  override def createSparkWriterStreaming(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL: RawBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter] = {
+  override def createSparkWriterStreaming(env: {val topicBL: TopicBL; val indexBL: IndexBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, ssc: StreamingContext, writerModel: WriterModel): Option[SparkStreamingWriter] = {
     val writer = new SparkStreamingWriter {
       override def write(stream: DStream[String]): Unit = {
         stream.foreachRDD((rdd: RDD[String], time: Time) => {
@@ -34,7 +34,7 @@ class SparkWriterTestWrapper extends SparkWriterFactory {
 
 
   val resultSparkWriter = new ListBuffer[Row]
-  override def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter] = {
+  override def createSparkWriterBatch(env: {val indexBL: IndexBL; val rawBL: RawBL; val keyValueBL: KeyValueBL}, sc: SparkContext, writerModel: WriterModel): Option[SparkWriter] = {
     val writer = new SparkWriter {
       override def write(data: DataFrame): Unit = resultSparkWriter.++=(data.collect())
     }

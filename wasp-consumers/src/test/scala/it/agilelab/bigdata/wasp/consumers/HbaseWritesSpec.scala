@@ -89,7 +89,7 @@ class HbaseWritesSpec  extends FlatSpec  with ScalaFutures with BeforeAndAfter  
     val schema: StructType = DataType.fromJson(hbaseModel.dataFrameSchema).asInstanceOf[StructType]
 
     val rowAvroConverters: Map[String, RowToAvro] = hbaseModel.avroSchemas.map(_.mapValues(v => {
-      new RowToAvro(schema, new Schema.Parser().parse(v))
+      new RowToAvro(schema, v)
     })).getOrElse(Map[String, RowToAvro]())
 
     val hbaseDataConfig = HBaseWriter.getHbaseConfDataConvert(hbaseModel.schema)
@@ -159,7 +159,7 @@ class HbaseWritesSpec  extends FlatSpec  with ScalaFutures with BeforeAndAfter  
     val schema: StructType = DataType.fromJson(hbaseModel.dataFrameSchema).asInstanceOf[StructType]
 
     val rowAvroConverters: Map[String, RowToAvro] = hbaseModel.avroSchemas.map(_.mapValues(v => {
-      new RowToAvro(schema, new Schema.Parser().parse(v))
+      new RowToAvro(schema, v)
     })).getOrElse(Map[String, RowToAvro]())
 
     val hbaseDataConfig = HBaseWriter.getHbaseConfDataConvert(hbaseModel.schema)
