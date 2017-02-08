@@ -190,8 +190,7 @@ class HBaseStreamingWriter(hbaseModel: KeyValueModel,
 
 				val hbaseTable = TableName.valueOf(s"${hbaseDataConfig.table.namespace}:${hbaseDataConfig.table.name}")
 				// create df from rdd using provided schema & spark's json datasource
-				// Deleted .schema(schema)
-				val df: DataFrame = sqlContext.read.json(rdd)
+				val df: DataFrame = sqlContext.read.schema(schema).json(rdd)
 				import org.apache.hadoop.hbase.spark.HBaseRDDFunctions._
 
 				val conversionFunction: (Row) => Put = HBaseWriter.getConvertPutFunc(hbaseDataConfig, rowAvroConverters)
