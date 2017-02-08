@@ -96,8 +96,8 @@ mappings in (Compile, packageBin) += {
 //mainClass in Compile := Some("it.agilelab.bigdata.wasp.launcher.FrameworkLauncher")
 mainClass in Compile := Some("it.agilelab.bigdata.wasp.pipegraph.metro.launchers.MetroLauncher")
 
-// append hadoop and spark conf dirs environment variables to classpath
-scriptClasspath += ":$HADOOP_CONF_DIR:$YARN_CONF_DIR"
+// append conf dirs environment variables to classpath
+scriptClasspath += ":$HADOOP_CONF_DIR:$YARN_CONF_DIR:$HBASE_CONF_DIR"
 
 // set the name of the zip file
 packageName in Universal := name.value
