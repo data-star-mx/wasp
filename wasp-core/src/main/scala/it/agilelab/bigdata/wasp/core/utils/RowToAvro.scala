@@ -52,12 +52,14 @@ case class RowToAvro(schema: StructType,
 
 
   /**
-    * This function constructs converter function for a given sparkSQL datatype. This is used in
-    * writing Avro records out to disk
+    * This function constructs a converter function for a given sparkSQL datatype. This is used in
+    * writing Avro records out to disk.
+    *
+    * Warning: while it does work with nested types, it will not work with nested types used as array elements!!
     */
-  private def createConverterToAvro(
-                                     dataType: DataType,
-                                     schema: Schema): (Any) => Any = {
+  private def createConverterToAvro(dataType: DataType,
+                                    schema: Schema,
+                                    fieldName: String = ""): (Any) => Any = {
     dataType match {
       case BinaryType => (item: Any) => item match {
         case null => null
@@ -99,26 +101,60 @@ case class RowToAvro(schema: StructType,
           }
         }
       case structType: StructType =>
-        val fieldConverters = structType.fields.map(field =>
-          createConverterToAvro(field.dataType, schema))
-        (item: Any) => {
-          if (item == null) {
-            null
-          } else {
-            val record = new Record(schema)
-            val convertersIterator = fieldConverters.iterator
-            val fieldNamesIterator = dataType.asInstanceOf[StructType].fieldNames.iterator
-            val rowIterator = item.asInstanceOf[Row].toSeq.iterator
-
-            while (convertersIterator.hasNext) {
-              val converter = convertersIterator.next()
-              val fieldName = fieldNamesIterator.next()
-              if (schema.getField(fieldName) != null) {
-                record.put(fieldName, converter(rowIterator.next()))
-
+        if (fieldName == "") { // top-level
+          val fieldConverters = structType.fields.map(field =>
+            createConverterToAvro(field.dataType, schema, field.name))
+          (item: Any) => {
+            if (item == null) {
+              null
+            } else {
+              val record = new Record(schema)
+              val convertersIterator = fieldConverters.iterator
+              val fieldNamesIterator = dataType.asInstanceOf[StructType].fieldNames.iterator
+              val rowIterator = item.asInstanceOf[Row].toSeq.iterator
+      
+              while (convertersIterator.hasNext) {
+                val converter = convertersIterator.next()
+                val fieldName = fieldNamesIterator.next()
+                if (schema.getField(fieldName) != null) {
+                  record.put(fieldName, converter(rowIterator.next()))
+          
+                }
               }
+              record
             }
-            record
+          }
+        } else { // nested struct
+          // find the nested schema corresponding to the field name, handling union types
+          val unknownNestedSchema = schema.getField(fieldName).schema()
+          val nestedSchema = if (unknownNestedSchema.getType == Schema.Type.UNION) {
+            unknownNestedSchema.getTypes.asScala.filter(_.getType != Schema.Type.NULL).head
+          } else {
+            unknownNestedSchema
+          }
+          // build field converters for nested fields
+          val fieldConverters = structType.fields.map(field =>
+            createConverterToAvro(field.dataType, nestedSchema, field.name))
+          // return appropriate converter using nested schema
+          (item: Any) => {
+            if (item == null) {
+              null
+            } else {
+              val record = new Record(nestedSchema)
+              val convertersIterator = fieldConverters.iterator
+              val fieldNamesIterator = dataType.asInstanceOf[StructType].fieldNames.iterator
+              val rowIterator = item.asInstanceOf[Row].toSeq.iterator
+      
+              while (convertersIterator.hasNext) {
+                val converter = convertersIterator.next()
+                val fieldName = fieldNamesIterator.next()
+                if (nestedSchema.getField(fieldName) != null) {
+                  record.put(fieldName, converter(rowIterator.next()))
+          
+                }
+              }
+              record
+            }
           }
         }
     }
