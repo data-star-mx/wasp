@@ -126,7 +126,7 @@ class MlModelsSpec extends SparkFlatSpec with BeforeAndAfter {
     val transformer: Transformer with Params = MlModelsTransformerCreation.createTransfomer(sqlContext)
 
     val sparkWriter = new SparkWriterTestWrapper
-    val actorRef = TestActorRef(new BatchJobActor(testBL, sparkWriter, sc))
+    val actorRef = TestActorRef(new BatchJobActor(testBL, None, sparkWriter, sc))
     val jobFut: BatchJobModel = createBatchModel()
     val batchJobBL: BatchJobBL = testBL.batchJobBL
     batchJobBL.persist(jobFut)
