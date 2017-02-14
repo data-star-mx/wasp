@@ -6,8 +6,7 @@ import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import org.apache.avro.Schema
 import org.apache.avro.file.{DataFileStream, DataFileWriter}
 import org.apache.avro.generic.{GenericDatumReader, GenericDatumWriter, GenericRecord}
-import org.apache.avro.io.{DecoderFactory, EncoderFactory, JsonEncoder}
-import play.api.libs.json.{JsValue, Json}
+import org.apache.avro.io.DecoderFactory
 
 object AvroToJsonUtil {
 
@@ -60,7 +59,7 @@ object AvroToJsonUtil {
 
     val schema = streamReader.getSchema
     val writer = new GenericDatumWriter[GenericRecord](schema)
-    val encoder = EncoderFactory.get().jsonEncoder(schema, output)
+    val encoder = new SimpleUnionJsonEncoder(schema, output)
 
     while (streamReader.iterator.hasNext) {
       writer.write(streamReader.iterator().next(), encoder)
@@ -69,7 +68,6 @@ object AvroToJsonUtil {
     encoder.flush()
     output.flush()
     new String(output.toByteArray, "UTF-8")
-
   }
 
   //Use this function all the times you need to pass a Json generic text message to the Avro encoder. This way, afterward, the decoder won't get broken.
