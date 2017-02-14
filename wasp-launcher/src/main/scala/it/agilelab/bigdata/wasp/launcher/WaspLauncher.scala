@@ -113,7 +113,7 @@ trait WaspLauncher extends ActorSystemInjector with LoggerInjector with BSONConv
 	}
 
 	private def startBatchGuardian(): Unit = {
-		actorSystem.actorOf(Props(new BatchMasterGuardian(ConfigBL, SparkWriterFactoryDefault)), BatchMasterGuardian.name)
+		// actorSystem.actorOf(Props(new BatchMasterGuardian(ConfigBL, None, SparkWriterFactoryDefault)), BatchMasterGuardian.name)
 	}
 
 	/**

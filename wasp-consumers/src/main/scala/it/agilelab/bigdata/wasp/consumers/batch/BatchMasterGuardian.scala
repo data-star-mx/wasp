@@ -30,7 +30,8 @@ object BatchMasterGuardian {
 }
 
 class BatchMasterGuardian(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL;  val keyValueBL: KeyValueBL; val mlModelBL: MlModelBL; val batchSchedulerBL: BatchSchedulersBL},
-                           sparkWriterFactory: SparkWriterFactory)
+                          val classLoader: Option[ClassLoader] = None,
+                          sparkWriterFactory: SparkWriterFactory)
   extends ClusterAwareNodeGuardian  with Stash with SparkBatchConfiguration {
 
   val logger = WaspLogger(this.getClass.getName)
@@ -42,7 +43,7 @@ class BatchMasterGuardian(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL
   val scCreated = SparkHolder.createSparkContext(sparkBatchConfig)
   if (!scCreated) logger.warn("The spark context was already intialized: it might not be using the spark batch configuration!")
   val sc = SparkHolder.getSparkContext
-  val batchActor = context.actorOf(Props(new BatchJobActor(env, sparkWriterFactory, sc)))
+  val batchActor = context.actorOf(Props(new BatchJobActor(env, classLoader, sparkWriterFactory, sc)))
 
 
   context become notinitialized

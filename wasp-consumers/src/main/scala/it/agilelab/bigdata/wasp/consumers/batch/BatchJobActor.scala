@@ -21,6 +21,7 @@ object BatchJobActor {
 }
 
 class BatchJobActor(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val rawBL: RawBL;  val keyValueBL: KeyValueBL; val mlModelBL: MlModelBL},
+                    val classLoader: Option[ClassLoader] = None,
                     sparkWriterFactory: SparkWriterFactory,
                     sc: SparkContext) extends Actor with ActorLogging {
 
@@ -124,7 +125,14 @@ class BatchJobActor(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val 
   private def createStrategy(etl: ETLModel) : Option[Strategy] = etl.strategy match {
     case None => None
     case Some(strategyModel) =>
-      val result = Class.forName(strategyModel.className).newInstance().asInstanceOf[Strategy]
+      //val result = Class.forName(strategyModel.className).newInstance().asInstanceOf[Strategy]
+      // classLoader.map(cl => cl.loadClass(producer.className))
+
+      println(s"************************** ${classLoader.toString()} -> strategyModel: ${strategyModel.className}")
+
+      val result = classLoader.map(cl => cl.loadClass(strategyModel.className)).get.newInstance().asInstanceOf[Strategy]
+
+      //.getOrElse(Class.forName(strategyModel.className).newInstance()).asInstanceOf[Strategy]
       result.configuration = strategyModel.configuration match {
         case None => Map[String, Any]()
         case Some(configuration) =>

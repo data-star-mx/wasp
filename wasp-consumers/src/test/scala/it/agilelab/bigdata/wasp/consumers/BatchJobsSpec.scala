@@ -37,7 +37,7 @@ class BatchJobsSpec extends SparkFlatSpec with BeforeAndAfter {
     val jobsNumber = 3
 
     val sparkWriter = new SparkWriterTestWrapper
-    val actorRef = TestActorRef(new BatchJobActor(testBL, sparkWriter, sc))
+    val actorRef = TestActorRef(new BatchJobActor(testBL, None, sparkWriter, sc))
     val job: BatchJobModel = createJob()
 
     val otherJobs = new Array[BatchJobModel](2)
