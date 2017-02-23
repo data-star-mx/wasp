@@ -75,45 +75,22 @@ object ConfigManager extends BSONConversionHelper {
 
   private def getDefaultSparkBatchConfig: SparkBatchConfigModel = {
     val sparkSubConfig = conf.getConfig("spark-batch")
-    val executorMemory =
-      if (sparkSubConfig.hasPath("executor-memory"))
-        Some(sparkSubConfig.getString("executor-memory"))
-      else None
-    val additionalJars =
-      if (sparkSubConfig.hasPath("additional-jars"))
-        Some(sparkSubConfig.getStringList("additional-jars").asScala)
-      else None
-    val yarnJar =
-      if (sparkSubConfig.hasPath("yarn-jar"))
-        Some(sparkSubConfig.getString("yarn-jar"))
-      else None
-    val blockManagerPort =
-      if (sparkSubConfig.hasPath("block-manager-port"))
-        Some(sparkSubConfig.getInt("block-manager-port"))
-      else None
-    val broadcastPort =
-      if (sparkSubConfig.hasPath("broadcast-port"))
-        Some(sparkSubConfig.getInt("broadcast-port"))
-      else None
-    val driverPort =
-      if (sparkSubConfig.hasPath("driver-port"))
-        Some(sparkSubConfig.getInt("driver-port"))
-      else None
-    val fileserverPort =
-      if (sparkSubConfig.hasPath("fileserver-port"))
-        Some(sparkSubConfig.getInt("fileserver-port"))
-      else None
     SparkBatchConfigModel(
+      sparkSubConfig.getString("app-name"),
       readConnection(sparkSubConfig.getConfig("master")),
-      sparkSubConfig.getInt("cleaner-ttl"),
-      executorMemory,
-      additionalJars,
+      sparkSubConfig.getInt("driver-cores"),
+      sparkSubConfig.getString("driver-memory"),
       sparkSubConfig.getString("driver-hostname"),
-      yarnJar,
-      blockManagerPort,
-      broadcastPort,
-      driverPort,
-      fileserverPort,
+      sparkSubConfig.getInt("driver-port"),
+      sparkSubConfig.getInt("executor-cores"),
+      sparkSubConfig.getString("executor-memory"),
+      sparkSubConfig.getInt("executor-instances"),
+      None, // no sensible default; must be filled in while instantiating SparkContext
+      sparkSubConfig.getString("yarn-jar"),
+      sparkSubConfig.getInt("cleaner-ttl"),
+      sparkSubConfig.getInt("block-manager-port"),
+      sparkSubConfig.getInt("broadcast-port"),
+      sparkSubConfig.getInt("fileserver-port"),
       sparkBatchConfigName
     )
   }
@@ -125,45 +102,22 @@ object ConfigManager extends BSONConversionHelper {
 
   private def getDefaultSparkStreamingConfig: SparkStreamingConfigModel = {
     val sparkSubConfig = conf.getConfig("spark-streaming")
-    val executorMemory =
-      if (sparkSubConfig.hasPath("executor-memory"))
-        Some(sparkSubConfig.getString("executor-memory"))
-      else None
-    val additionalJars =
-      if (sparkSubConfig.hasPath("additional-jars"))
-        Some(sparkSubConfig.getStringList("additional-jars").asScala)
-      else None
-    val yarnJar =
-      if (sparkSubConfig.hasPath("yarn-jar"))
-        Some(sparkSubConfig.getString("yarn-jar"))
-      else None
-    val blockManagerPort =
-      if (sparkSubConfig.hasPath("block-manager-port"))
-        Some(sparkSubConfig.getInt("block-manager-port"))
-      else None
-    val broadcastPort =
-      if (sparkSubConfig.hasPath("broadcast-port"))
-        Some(sparkSubConfig.getInt("broadcast-port"))
-      else None
-    val driverPort =
-      if (sparkSubConfig.hasPath("driver-port"))
-        Some(sparkSubConfig.getInt("driver-port"))
-      else None
-    val fileserverPort =
-      if (sparkSubConfig.hasPath("fileserver-port"))
-        Some(sparkSubConfig.getInt("fileserver-port"))
-      else None
     SparkStreamingConfigModel(
+      sparkSubConfig.getString("app-name"),
       readConnection(sparkSubConfig.getConfig("master")),
-      sparkSubConfig.getInt("cleaner-ttl"),
-      executorMemory,
-      additionalJars,
+      sparkSubConfig.getInt("driver-cores"),
+      sparkSubConfig.getString("driver-memory"),
       sparkSubConfig.getString("driver-hostname"),
-      yarnJar,
-      blockManagerPort,
-      broadcastPort,
-      driverPort,
-      fileserverPort,
+      sparkSubConfig.getInt("driver-port"),
+      sparkSubConfig.getInt("executor-cores"),
+      sparkSubConfig.getString("executor-memory"),
+      sparkSubConfig.getInt("executor-instances"),
+      None, // no sensible default; must be filled in while instantiating SparkContext
+      sparkSubConfig.getString("yarn-jar"),
+      sparkSubConfig.getInt("cleaner-ttl"),
+      sparkSubConfig.getInt("block-manager-port"),
+      sparkSubConfig.getInt("broadcast-port"),
+      sparkSubConfig.getInt("fileserver-port"),
       sparkSubConfig.getInt("streaming-batch-interval-ms"),
       sparkSubConfig.getString("checkpoint-dir"),
       sparkStreamingConfigName

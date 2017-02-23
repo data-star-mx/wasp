@@ -23,35 +23,26 @@ object SparkHolder {
     SparkHolder.synchronized {
       if (sc == null) {
         val loadedJars = sparkConfig.additionalJars.getOrElse(
-          getAdditionalJar(Set(sparkConfig.yarnJar.getOrElse("no-files"))))
+          getAdditionalJar(Set(sparkConfig.yarnJar)))
         //TODO: gestire appName in maniera dinamica (e.g. batchGuardian, consumerGuardian..)
         val conf = new SparkConf()
-          .setAppName(getClass.getSimpleName)
-          .set("spark.cleaner.ttl", sparkConfig.cleanerTtl.toString)
-          //.set("spark.driver.memory", "1g")
-          .set("spark.driver.cores", "2")
-          .set("spark.executor.memory",
-               sparkConfig.executorMemory.getOrElse("4G"))
-          .set("spark.driver.host", sparkConfig.driverHostname)
-          .set("spark.driver.port",
-               sparkConfig.driverPort.getOrElse(0).toString)
-          .set("spark.blockManager.port",
-               sparkConfig.blockManagerPort.getOrElse(0).toString)
-          .set("spark.broadcast.port",
-               sparkConfig.broadcastPort.getOrElse(0).toString)
-          .set("spark.fileserver.port",
-               sparkConfig.fileserverPort.getOrElse(0).toString)
-          .setJars(loadedJars)
+          .setAppName(sparkConfig.appName)
           .setMaster(sparkConfig.master.toString)
-
-        sparkConfig.yarnJar match {
-          case Some(yarnJar) => conf.set("spark.yarn.jar", yarnJar)
-          case None =>
-            val master = sparkConfig.master
-            if (master.protocol == "" && master.host.startsWith("yarn"))
-              println(
-                "Running on YARN without specifying spark.yarn.jar is unlikely to work!")
-        }
+          .set("spark.driver.cores", sparkConfig.driverCores.toString)
+          .set("spark.driver.memory", sparkConfig.driverMemory) // NOTE: will only work in yarn-cluster
+          .set("spark.driver.host", sparkConfig.driverHostname)
+          .set("spark.driver.port", sparkConfig.driverPort.toString)
+          .set("spark.executor.cores", sparkConfig.executorCores.toString)
+          .set("spark.executor.memory", sparkConfig.executorMemory)
+          .set("spark.executor.instances", sparkConfig.executorInstances.toString)
+          .setJars(loadedJars)
+          .set("spark.yarn.jar", sparkConfig.yarnJar)
+          .set("spark.cleaner.ttl", sparkConfig.cleanerTtl.toString)
+          .set("spark.blockManager.port", sparkConfig.blockManagerPort.toString)
+          .set("spark.broadcast.port", sparkConfig.broadcastPort.toString)
+          .set("spark.fileserver.port", sparkConfig.fileserverPort.toString)
+          
+        validateConfig(sparkConfig)
 
         val a = conf.getAll
         println("conf size: " + a.length)
@@ -101,6 +92,12 @@ object SparkHolder {
     } else {
       List[String]()
     }
+  }
+  
+  def validateConfig(sparkConfig: SparkConfigModel): Unit = {
+    val master = sparkConfig.master
+    if (master.protocol == "" && master.host.startsWith("yarn"))
+      println("Running on YARN without specifying spark.yarn.jar is unlikely to work!")
   }
 
 }

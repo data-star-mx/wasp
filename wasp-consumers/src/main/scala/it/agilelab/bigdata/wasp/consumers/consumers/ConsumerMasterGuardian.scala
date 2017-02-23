@@ -73,7 +73,7 @@ class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL:
     if (readyEtls == etlListSize) {
       super.initialize()
       logger.info("All consumer child actors have sucessfully connected to the master guardian! Starting SSC")
-      ssc.checkpoint(sparkStreamingConfig.sparkCheckpointDir)
+      ssc.checkpoint(sparkStreamingConfig.checkpointDir)
       ssc.start()
       Thread.sleep(1500)
       lastRestartMasterRef ! true
