@@ -9,6 +9,7 @@ import it.agilelab.bigdata.wasp.core.WaspSystem._
 import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models._
+import org.apache.commons.lang.exception.ExceptionUtils._
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.DataFrame
 import reactivemongo.bson._
@@ -66,7 +67,7 @@ class BatchJobActor(env: {val batchJobBL: BatchJobBL; val indexBL: IndexBL; val 
             writeSuccess = writeResult(res, jobModel.etl.output)
           } catch {
             case e: Exception =>
-              logger.error(s"Batch job ${jobModel.name} has failed to save the results")
+              logger.error(s"Batch job ${jobModel.name} has failed to save the results. Exception: ${getStackTrace(e)}")
               writeSuccess = false
           }//TODO: sistemare stringa quando useremo enum
         case None =>
