@@ -2,7 +2,6 @@ package it.agilelab.bigdata.wasp.launcher
 
 import akka.actor.Props
 import it.agilelab.bigdata.wasp.WASP_VERSION
-import it.agilelab.bigdata.wasp.consumers.batch.BatchMasterGuardian
 import it.agilelab.bigdata.wasp.consumers.consumers.ConsumersMasterGuardian
 import it.agilelab.bigdata.wasp.consumers.readers.KafkaReader
 import it.agilelab.bigdata.wasp.consumers.writers.SparkWriterFactoryDefault
@@ -15,7 +14,7 @@ import it.agilelab.bigdata.wasp.core.models._
 import it.agilelab.bigdata.wasp.producers.InternalLogProducerGuardian
 
 trait WaspLauncher extends ActorSystemInjector with LoggerInjector with BSONConversionHelper {
-	override def loggerActorProps : Props = Props(new InternalLogProducerGuardian(ConfigBL))
+	override def loggerActorProps : Props = Props.create(classOf[InternalLogProducerGuardian], ConfigBL)
 
 	// ASCII art from http://bigtext.org/?font=smslant&text=Wasp
 	val banner = """Welcome to
@@ -123,10 +122,10 @@ trait WaspLauncher extends ActorSystemInjector with LoggerInjector with BSONConv
 		println("Default workloads initialization.")
 		val db = WaspDB.getDB
 		// initialize logger pipegraph
-		//db.insertIfNotExists[TopicModel](SystemPipegraphs.loggerTopic)
-		//db.insertIfNotExists[IndexModel](SystemPipegraphs.loggerIndex)
-		//db.insertIfNotExists[PipegraphModel](SystemPipegraphs.loggerPipegraph)
-		//db.insertIfNotExists[ProducerModel](SystemPipegraphs.loggerProducer)
+		db.insertIfNotExists[TopicModel](SystemPipegraphs.loggerTopic)
+		db.insertIfNotExists[IndexModel](SystemPipegraphs.loggerIndex)
+		db.insertIfNotExists[PipegraphModel](SystemPipegraphs.loggerPipegraph)
+		db.insertIfNotExists[ProducerModel](SystemPipegraphs.loggerProducer)
 		// initialize raw pipegraph
 		//db.insertIfNotExists[TopicModel](SystemPipegraphs.rawTopic)
 		//db.insertIfNotExists[IndexModel](SystemPipegraphs.rawIndex)

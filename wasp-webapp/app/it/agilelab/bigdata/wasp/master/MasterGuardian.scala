@@ -14,6 +14,7 @@ import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.{BatchJobModel, PipegraphModel, ProducerModel}
+import it.agilelab.bigdata.wasp.producers.InternalLogProducerGuardian
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
@@ -80,7 +81,10 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   val producers: Map[String, ActorRef] = Await.result(
   env.producerBL.getAll.map((producers: List[ProducerModel]) => {
     producers.map(producer => {
-      producer._id.get.stringify -> actorSystem.actorOf(Props( classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className)), ConfigBL), producer.name)
+      if(producer.name == "LoggerProducer")
+        producer._id.get.stringify -> WaspSystem.loggerActor.get
+      else
+        producer._id.get.stringify -> actorSystem.actorOf(Props( classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className)), ConfigBL), producer.name)
     }).toMap
   }), WaspSystem.timeout.duration)
 
