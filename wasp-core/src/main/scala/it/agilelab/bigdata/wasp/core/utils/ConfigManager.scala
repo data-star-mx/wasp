@@ -87,7 +87,6 @@ object ConfigManager extends BSONConversionHelper {
       sparkSubConfig.getInt("executor-instances"),
       None, // no sensible default; must be filled in while instantiating SparkContext
       sparkSubConfig.getString("yarn-jar"),
-      sparkSubConfig.getInt("cleaner-ttl"),
       sparkSubConfig.getInt("block-manager-port"),
       sparkSubConfig.getInt("broadcast-port"),
       sparkSubConfig.getInt("fileserver-port"),
@@ -114,7 +113,6 @@ object ConfigManager extends BSONConversionHelper {
       sparkSubConfig.getInt("executor-instances"),
       None, // no sensible default; must be filled in while instantiating SparkContext
       sparkSubConfig.getString("yarn-jar"),
-      sparkSubConfig.getInt("cleaner-ttl"),
       sparkSubConfig.getInt("block-manager-port"),
       sparkSubConfig.getInt("broadcast-port"),
       sparkSubConfig.getInt("fileserver-port"),
