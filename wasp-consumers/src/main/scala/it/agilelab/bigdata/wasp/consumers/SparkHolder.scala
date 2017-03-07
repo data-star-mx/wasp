@@ -37,7 +37,6 @@ object SparkHolder {
           .set("spark.executor.instances", sparkConfig.executorInstances.toString)
           .setJars(loadedJars)
           .set("spark.yarn.jar", sparkConfig.yarnJar)
-          .set("spark.cleaner.ttl", sparkConfig.cleanerTtl.toString)
           .set("spark.blockManager.port", sparkConfig.blockManagerPort.toString)
           .set("spark.broadcast.port", sparkConfig.broadcastPort.toString)
           .set("spark.fileserver.port", sparkConfig.fileserverPort.toString)
