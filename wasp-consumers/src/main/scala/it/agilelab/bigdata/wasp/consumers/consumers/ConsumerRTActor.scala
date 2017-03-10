@@ -9,11 +9,12 @@ import it.agilelab.bigdata.wasp.core.WaspSystem
 import it.agilelab.bigdata.wasp.core.bl.{IndexBL, TopicBL, WebsocketBL}
 import it.agilelab.bigdata.wasp.core.kafka.WaspKafkaReader
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
-import it.agilelab.bigdata.wasp.core.models.{RTModel, WriterModel}
+import it.agilelab.bigdata.wasp.core.models.{RTModel, ReaderModel, WriterModel}
 import it.agilelab.bigdata.wasp.core.utils._
 import reactivemongo.bson._
 
 import scala.concurrent.Await
+import scala.collection.mutable
 
 
 case class StartRT()
@@ -47,10 +48,13 @@ class ConsumerRTActor(env: {val topicBL: TopicBL; val websocketBL: WebsocketBL; 
 
   lazy val epManagerActor: ActorRef = initializeEndpointsManager(rt.endpoint)
 
+  // cache for topic data types
+  val topicDataTypes = mutable.Map.empty[String, String]
+  
   def initializeEndpointsManager(endpointsModel: Option[WriterModel]) = {
     context.actorOf(Props(new RtWritersManagerActor(env, endpointsModel)))
   }
-
+  
   def receive: Actor.Receive = {
     case StartRT => {
       epManagerActor
@@ -65,29 +69,43 @@ class ConsumerRTActor(env: {val topicBL: TopicBL; val websocketBL: WebsocketBL; 
       }
       epManagerActor ! PoisonPill
     }
-
     case (key: String, data: Array[Byte]) => {
-
       rt.inputs.foreach { input =>
-        val topicFut = env.topicBL.getById(input.id.stringify)
-        val topicOpt = Await.result(topicFut, WaspSystem.timeout.duration)
-
-        topicOpt.map(_.topicDataType) match {
-          case Some("avro") => {
+        
+        val topicDataType = getTopicDataType(input)
+        
+        topicDataType match {
+          case "avro" => {
             val jsonMsg = AvroToJsonUtil.avroToJson(data)
             val outputJson = applyStrategy(key, jsonMsg)
             epManagerActor ! outputJson
           }
-          case Some("json") => {
+          case "json" => {
             val jsonMsg = JsonToByteArrayUtil.byteArrayToJson(data)
             val outputJson = applyStrategy(key, jsonMsg)
             epManagerActor ! outputJson
           }
         }
-
       }
-
-
+    }
+  }
+  
+  // returns the topic type corresponding to the input given
+  private def getTopicDataType(input: ReaderModel): String = {
+    val topicId = input.id.stringify
+    val typeOpt = topicDataTypes.get(topicId)
+    
+    typeOpt match {
+      case Some(topicDataType) => topicDataType // found in cache, simply return it
+      case None => { // not found, get from db, add to cache, return it
+        val topicFut = env.topicBL.getById(input.id.stringify)
+        val topicOpt = Await.result(topicFut, WaspSystem.timeout.duration)
+        val topicDataType = topicOpt.get.topicDataType
+        
+        topicDataTypes += topicId -> topicDataType
+        
+        topicDataType
+      }
     }
   }
 
