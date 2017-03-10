@@ -78,15 +78,11 @@ class ConsumerRTActor(env: {val topicBL: TopicBL; val websocketBL: WebsocketBL; 
             val outputJson = applyStrategy(key, jsonMsg)
             epManagerActor ! outputJson
           }
-
           case Some("json") => {
             val jsonMsg = JsonToByteArrayUtil.byteArrayToJson(data)
             val outputJson = applyStrategy(key, jsonMsg)
             epManagerActor ! outputJson
           }
-
-          case _ =>
-
         }
 
       }
