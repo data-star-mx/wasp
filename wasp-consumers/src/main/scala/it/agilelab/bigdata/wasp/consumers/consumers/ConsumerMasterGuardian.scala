@@ -75,7 +75,7 @@ class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL:
       logger.info("All consumer child actors have sucessfully connected to the master guardian! Starting SSC")
       ssc.checkpoint(sparkStreamingConfig.checkpointDir)
       ssc.start()
-      Thread.sleep(1500)
+      Thread.sleep(5 * 1000)
       lastRestartMasterRef ! true
       context become initialized
       logger.info("ConsumerMasterGuardian Initialized")
@@ -120,7 +120,7 @@ class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL:
     //questa sleep serve perchè se si fa la stop dello spark streamng context subito dopo che e' stato
     //startato va tutto iin timeout
     //TODO capire come funziona
-    Thread.sleep(1500)
+    Thread.sleep(5 * 1000)
     ssc.stop(stopSparkContext = false, stopGracefully = true)
 
     logger.info(s"stopping Spark Context")
