@@ -6,7 +6,7 @@ import akka.actor.{Actor, ActorRef, PoisonPill, Props, actorRef2Scala}
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import it.agilelab.bigdata.wasp.consumers._
-import it.agilelab.bigdata.wasp.consumers.consumers.ConsumersMasterGuardian
+import it.agilelab.bigdata.wasp.consumers.consumers.{ConsumersMasterGuardian, RestartConsumers}
 import it.agilelab.bigdata.wasp.consumers.readers.KafkaReader
 import it.agilelab.bigdata.wasp.core.WaspSystem
 import it.agilelab.bigdata.wasp.core.WaspSystem.{??, actorSystem, timeout}
@@ -26,15 +26,10 @@ object MasterGuardian {
     WaspSystem.masterActor = actorSystem.actorOf(Props(new MasterGuardian(ConfigBL)))
 
   val timeToFirst = ceilDayTime(System.currentTimeMillis) - System.currentTimeMillis
-
-  // TODO improve pipelines restart avoiding multiple consumers restart (it could be done only once at the end)
+  
+  // at midnight, restart all active pipelines (this causes new timed indices creation and consumers redirection on new indices)
   val rollingTask = actorSystem.scheduler.schedule(Duration.apply(timeToFirst, MILLISECONDS), 24 hours) {
-    // restart all active pipelines (this causes new timed indices creation and consumers redirection on new indices)
-    ConfigBL.pipegraphBL.getActivePipegraphs(true).map(pipegraphs => pipegraphs.map(pipegraph => {
-      if (??[Boolean](WaspSystem.masterActor, StopPipegraph(pipegraph._id.get.stringify)))
-        ??[Boolean](WaspSystem.masterActor, StartPipegraph(pipegraph._id.get.stringify))
-    }))
-
+    ??[Boolean](WaspSystem.masterActor, RestartPipegraphs)
   }
 
   // TODO: configurable timeout & handle this better
