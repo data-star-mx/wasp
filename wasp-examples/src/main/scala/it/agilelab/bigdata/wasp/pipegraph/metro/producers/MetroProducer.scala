@@ -3,24 +3,18 @@ package it.agilelab.bigdata.wasp.pipegraph.metro.producers
 import java.util.Date
 
 import akka.actor._
-import it.agilelab.bigdata.wasp.core.WaspSystem
-import it.agilelab.bigdata.wasp.core.WaspSystem._
-import it.agilelab.bigdata.wasp.core.bl.{BatchSchedulersBL, _}
-import it.agilelab.bigdata.wasp.core.models.{ProducerModel, TopicModel}
+import it.agilelab.bigdata.wasp.core.bl._
+import it.agilelab.bigdata.wasp.core.models.TopicModel
 import it.agilelab.bigdata.wasp.core.utils.TimeFormatter
-import it.agilelab.bigdata.wasp.master.MasterGuardian
 import it.agilelab.bigdata.wasp.pipegraph.metro.models.MetroTopicModel
 import it.agilelab.bigdata.wasp.producers._
 import org.jboss.netty.handler.timeout.TimeoutException
 import play.api.libs.json.{JsValue, Json}
-import reactivemongo.bson.BSONArray
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.parsing.json.JSONArray
 import scalaj.http.{Http, HttpOptions, HttpResponse}
 
-final class MetroProducer(env: {val producerBL: ProducerBL; val topicBL: TopicBL}) extends ProducerMasterGuardian(env) {
+final class MetroProducer(env: {val producerBL: ProducerBL; val topicBL: TopicBL}, producerId: String) extends ProducerMasterGuardian(env, producerId) {
 
   // http://developer.metro.net/introduction/realtime-api-overview/realtime-api-examples/
   // http://api.metro.net/agencies/lametro/vehicles/

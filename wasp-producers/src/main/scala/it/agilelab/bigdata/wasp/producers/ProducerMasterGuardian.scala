@@ -9,7 +9,7 @@ import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.kafka.CheckOrCreateTopic
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.{ProducerModel, TopicModel}
-import it.agilelab.bigdata.wasp.core.utils.{ConfigManager}
+import it.agilelab.bigdata.wasp.core.utils.ConfigManager
 import it.agilelab.bigdata.wasp.core.{WaspMessage, WaspSystem}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,12 +19,12 @@ case object StartProducer extends WaspMessage
 
 case object StopProducer extends WaspMessage
 
-abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topicBL: TopicBL}) extends ClusterAwareNodeGuardian {
+abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topicBL: TopicBL}, producerId: String) extends ClusterAwareNodeGuardian {
   val logger = WaspLogger(this.getClass.getName)
   
   val name: String
   
-  // intialized in initialize()
+  // initialized in initialize()
   var producer: ProducerModel = _
   var associatedTopic: Option[TopicModel] = _
   var router_name: String = _
@@ -90,7 +90,7 @@ abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topi
 
   override def initialize(): Unit = {
 
-    val producerFuture = env.producerBL.getByName(name)
+    val producerFuture = env.producerBL.getById(producerId)
 
     val kafkaConfig = ConfigManager.getKafkaConfig
 

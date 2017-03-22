@@ -18,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
 
-abstract class HttpProducer(env: {val producerBL: ProducerBL; val topicBL: TopicBL}) extends ProducerMasterGuardian(env) {
+abstract class HttpProducer(env: {val producerBL: ProducerBL; val topicBL: TopicBL}, producerId: String) extends ProducerMasterGuardian(env, producerId) {
 
   val name = "HttpProducer"
   implicit val askTimeout: Timeout = 1000.millis

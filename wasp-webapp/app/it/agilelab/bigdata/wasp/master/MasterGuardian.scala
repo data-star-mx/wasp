@@ -76,10 +76,14 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   val producers: Map[String, ActorRef] = Await.result(
   env.producerBL.getAll.map((producers: List[ProducerModel]) => {
     producers.map(producer => {
-      if(producer.name == "LoggerProducer")
-        producer._id.get.stringify -> WaspSystem.loggerActor.get
-      else
-        producer._id.get.stringify -> actorSystem.actorOf(Props( classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className)), ConfigBL), producer.name)
+      val producerId = producer._id.get.stringify
+      if (producer.name == "LoggerProducer") { // logger producer is special
+        // do not instantiate, but get the already existing one from WaspSystem
+        producerId -> WaspSystem.loggerActor.get
+      } else {
+        val producerClass = classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className))
+        producerId -> actorSystem.actorOf(Props(producerClass, ConfigBL, producerId), producer.name)
+      }
     }).toMap
   }), WaspSystem.timeout.duration)
 
