@@ -142,13 +142,14 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   // TODO try without sender parenthesis
   def initialized: Actor.Receive = {
     //case message: RemovePipegraph => call(message, onPipegraph(message.id, removePipegraph))
-    case message: StartPipegraph => call(sender(), message, onPipegraph(message.id, startPipegraph))
-    case message: StartProducer => call(sender(), message, onProducer(message.id, startProducer))
-    case message: StartETL  => call(sender(), message, onEtl(message.id, message.etlName, startEtl))
-    case message: StopPipegraph  => call(sender(), message, onPipegraph(message.id, stopPipegraph))
-    case message: StopProducer  => call(sender(), message, onProducer(message.id, stopProducer))
-    case message: StopETL  => call(sender(), message, onEtl(message.id, message.etlName, stopEtl))
-    case message: StartBatchJob => call(sender(), message, onBatchJob(message.id, startBatchJob))
+    case message: StartPipegraph    => call(sender(), message, onPipegraph(message.id, startPipegraph))
+    case message: StopPipegraph     => call(sender(), message, onPipegraph(message.id, stopPipegraph))
+    case RestartPipegraphs          => call(sender(), RestartPipegraphs, onRestartPipegraphs())
+    case message: StartProducer     => call(sender(), message, onProducer(message.id, startProducer))
+    case message: StopProducer      => call(sender(), message, onProducer(message.id, stopProducer))
+    case message: StartETL          => call(sender(), message, onEtl(message.id, message.etlName, startEtl))
+    case message: StopETL           => call(sender(), message, onEtl(message.id, message.etlName, stopEtl))
+    case message: StartBatchJob     => call(sender(), message, onBatchJob(message.id, startBatchJob))
     case message: StartPendingBatchJobs => call(sender(), message, startPendingBatchJobs())
     case message: batch.BatchJobProcessedMessage => //TODO gestione batchJob finito?
     //case message: Any           => logger.error("unknown message: " + message)
@@ -170,7 +171,12 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
     }.recover {
       case e: Throwable => Right(manageThrowable("Pipegraph not started.", e))
     }
-
+  
+  private def onRestartPipegraphs(): Future[Either[String, String]] = {
+    consumer ! RestartConsumers
+    future(Left("Pipegraphs restart started."))
+  }
+  
   private def onProducer(id: String, f: ProducerModel => Future[Either[String, String]]) =
     env.producerBL.getById(id).flatMap {
       case None => future {

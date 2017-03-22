@@ -11,10 +11,11 @@ abstract class BatchJobMessage(id:String) extends MasterGuardianMessage(id)
 
 case class RemovePipegraph(override val id:String) extends PipegraphMessage(id)
 case class StartPipegraph(override val id : String) extends PipegraphMessage(id)
-case class StartProducer(override val id:String) extends ProducerMessage(id)
-case class StartETL(override val id:String, override val etlName: String) extends ETLMessage(id, etlName)
 case class StopPipegraph(override val id:String) extends PipegraphMessage(id)
+case object RestartPipegraphs extends MasterGuardianMessage(null)
+case class StartProducer(override val id:String) extends ProducerMessage(id)
 case class StopProducer(override val id:String) extends ProducerMessage(id)
+case class StartETL(override val id:String, override val etlName: String) extends ETLMessage(id, etlName)
 case class StopETL(override val id:String, override val etlName: String) extends ETLMessage(id, etlName)
 
 case class StartBatchJob(override val id:String) extends BatchJobMessage(id)
