@@ -1,13 +1,15 @@
 package it.agilelab.bigdata.wasp.consumers
 
-import java.io.{File, FilenameFilter}
+import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory}
+import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.configuration.SparkConfigModel
-import org.apache.spark.scheduler.{SparkListener, SparkListenerEnvironmentUpdate}
 import org.apache.spark.{SparkConf, SparkContext}
 
 object SparkHolder {
+  private val logger = WaspLogger(SparkHolder.getClass)
+  
   private var sc: SparkContext = _
 
   private lazy val conf: Config = ConfigFactory.load
@@ -22,6 +24,7 @@ object SparkHolder {
   def createSparkContext(sparkConfig: SparkConfigModel): Boolean =
     SparkHolder.synchronized {
       if (sc == null) {
+        logger.info("Instantiating SparkContext.")
         val loadedJars = sparkConfig.additionalJars.getOrElse(
           getAdditionalJar(Set(sparkConfig.yarnJar)))
         //TODO: gestire appName in maniera dinamica (e.g. batchGuardian, consumerGuardian..)
@@ -43,13 +46,11 @@ object SparkHolder {
           
         validateConfig(sparkConfig)
 
-        val a = conf.getAll
-        println("conf size: " + a.length)
-        for (c <- conf.getAll) println("**************** " + c)
-
+        logger.info("Spark configuration:\n\t" + conf.toDebugString.replace("\n", "\n\t"))
+        
         sc = new SparkContext(conf)
-        sc.setLogLevel("WARN")
-
+        logger.info("Successfully instantiated SparkContext.")
+        
         true
       } else {
         false
@@ -96,7 +97,7 @@ object SparkHolder {
   def validateConfig(sparkConfig: SparkConfigModel): Unit = {
     val master = sparkConfig.master
     if (master.protocol == "" && master.host.startsWith("yarn"))
-      println("Running on YARN without specifying spark.yarn.jar is unlikely to work!")
+      logger.warn("Running on YARN without specifying spark.yarn.jar is unlikely to work!")
   }
 
 }
