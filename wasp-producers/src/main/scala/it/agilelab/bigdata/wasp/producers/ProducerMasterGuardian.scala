@@ -20,15 +20,15 @@ case object StartProducer extends WaspMessage
 case object StopProducer extends WaspMessage
 
 abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topicBL: TopicBL}) extends ClusterAwareNodeGuardian {
-
-  var producer: ProducerModel = _
-  var associatedTopic: Option[TopicModel] = None
-
-  val name: String
-  val router_name = "kafka-ingestion-router-" + name + System.currentTimeMillis().toString
   val logger = WaspLogger(this.getClass.getName)
-  // TODO: Careful with kafka router dynamic name
-  var kafka_router: ActorRef = _
+  
+  val name: String
+  
+  // intialized in initialize()
+  var producer: ProducerModel = _
+  var associatedTopic: Option[TopicModel] = _
+  var router_name: String = _
+  var kafka_router: ActorRef = _ // TODO: Careful with kafka router dynamic name
 
   override def postStop(): Unit = {
     super.postStop()
@@ -106,7 +106,7 @@ abstract class ProducerMasterGuardian(env: {val producerBL: ProducerBL; val topi
                 logger.info(s"Topic found  $topic")
                 if (??[Boolean](WaspSystem.getKafkaAdminActor, CheckOrCreateTopic(topic.get.name, topic.get.partitions, topic.get.replicas))) {
                   logger.info("Before run kafka_router")
-
+                  router_name = s"kafka-ingestion-router-$name-${producer._id.get.stringify}-${System.currentTimeMillis()}"
                   kafka_router = actorSystem.actorOf(BalancingPool(5).props(Props(new KafkaPublisherActor(ConfigManager.getKafkaConfig))), router_name)
                   logger.info("After run kafka_router")
                   context become initialized
