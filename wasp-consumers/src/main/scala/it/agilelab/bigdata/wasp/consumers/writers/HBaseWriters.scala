@@ -206,15 +206,19 @@ class HBaseWriter(hbaseModel: KeyValueModel,
 	override def write(df: DataFrame): Unit = {
 		// get sql context
 		val sqlContext = df.sqlContext
+		
+		// prepare hbase configuration
 		val hBaseConfiguration = HBaseConfiguration.create()
+		// merge additional configuration files if Spark configuration specifies them
+		/* TODO verify configuration merging is what we want:
+		 * HBaseConfiguration.create() loads from standard files (those in $HBASE_CONF_DIR), which may have configurations
+		 * in them that we do not want!
+		 * in that case, we should maybe use HBaseConfiguration.create(new Configuration(false)) as base configuration
+		 */
 		if (conf.hasPath("hbase.configuration.core-site") && conf.hasPath("hbase.configuration.hbase-site")) {
 			hBaseConfiguration.addResource(new Path(conf.getString("hbase.configuration.core-site")))
 			hBaseConfiguration.addResource(new Path(conf.getString("hbase.configuration.hbase-site")))
-		} else{
-			hBaseConfiguration.addResource(new Path("/etc/hbase/conf/core-site.xml"))
-			hBaseConfiguration.addResource(new Path("/etc/hbase/conf/hbase-site.xml"))
 		}
-
 
 		val hBaseContext = new HBaseContext(sqlContext.sparkContext, hBaseConfiguration)
 		//TODO Write a validator of the data converter configurations
