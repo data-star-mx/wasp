@@ -10,7 +10,7 @@ import it.agilelab.bigdata.wasp.core.WaspSystem._
 import it.agilelab.bigdata.wasp.core.bl.{IndexBL, TopicBL, WebsocketBL}
 import it.agilelab.bigdata.wasp.core.elastic.CheckOrCreateIndex
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
-import it.agilelab.bigdata.wasp.core.models.{IndexModel, TopicModel, WebsocketModel, WriterModel}
+import it.agilelab.bigdata.wasp.core.models._
 import it.agilelab.bigdata.wasp.core.utils.{AvroToJsonUtil, BSONFormats, ConfigManager}
 import org.apache.camel.component.websocket._
 import play.libs.Json
@@ -65,11 +65,9 @@ class CamelKafkaWriter(topicBL: TopicBL, writer: WriterModel) extends Producer {
   //TODO: Configurazione completa?
   val kafkaTopicFut: Future[Option[TopicModel]] = topicBL.getById(writer.id.stringify)
   //TODO recuperare timeout wasp
-  val kafkaTopic: Option[TopicModel] = Await.result(kafkaTopicFut, Timeout(30, TimeUnit.SECONDS).duration)
-  if (kafkaTopic.isEmpty) {
-    //TODO eccezione? fallisce l'attore?
-  }
-  val topicSchema = BSONFormats.toString(kafkaTopic.get.schema.getOrElse(BSONDocument()))
+  val kafkaTopic: TopicModel = Await.result(kafkaTopicFut, Timeout(30, TimeUnit.SECONDS).duration).get
+  val topicSchema = BSONFormats.toString(kafkaTopic.schema.getOrElse(BSONDocument()))
+  val topicDataType = kafkaTopic.topicDataType
 
 
   override def endpointUri: String = getKafkaUri(writer.name)
@@ -85,16 +83,16 @@ class CamelKafkaWriter(topicBL: TopicBL, writer: WriterModel) extends Producer {
 
   override def transformOutgoingMessage(msg: Any): Any = {
     msg match {
-      case m: String => {
-        AvroToJsonUtil.jsonToAvro(m, topicSchema)
+      case m: String => topicDataType match {
+        case "avro" => AvroToJsonUtil.jsonToAvro(m, topicSchema)
+        case "json" => m.getBytes
       }
       case camel: CamelMessage => {
         camel
       }
-        //TODO
+      // TODO
       case default: Any => ???
     }
-
   }
 }
 
