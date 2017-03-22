@@ -120,10 +120,11 @@ class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL:
     //questa sleep serve perchè se si fa la stop dello spark streamng context subito dopo che e' stato
     //startato va tutto iin timeout
     //TODO capire come funziona
-    Thread.sleep(1500)
+    //Thread.sleep(1500)
     ssc.stop(stopSparkContext = false, stopGracefully = true)
+    ssc.awaitTermination()
 
-    logger.info(s"stopping Spark Context")
+    //logger.info(s"stopping Spark Context") why was this log line even here? we never stop it!
     val globalStatus = Future.traverse(context.children)(gracefulStop(_, 60 seconds))
     val res = Await.result(globalStatus, 20 seconds)
 
