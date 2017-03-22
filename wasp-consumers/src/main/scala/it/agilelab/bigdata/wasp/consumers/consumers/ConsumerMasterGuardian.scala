@@ -75,7 +75,7 @@ class ConsumersMasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL:
       logger.info("All consumer child actors have sucessfully connected to the master guardian! Starting SSC")
       ssc.checkpoint(sparkStreamingConfig.checkpointDir)
       ssc.start()
-      Thread.sleep(1500)
+      Thread.sleep(5 * 1000)
       lastRestartMasterRef ! true
       context become initialized
       logger.info("ConsumerMasterGuardian Initialized")
