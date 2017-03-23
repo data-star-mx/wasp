@@ -18,7 +18,7 @@ import reactivemongo.bson.BSONObjectID
 /**
  * Created by Mattia Bertorello on 06/10/15.
  */
-class ProducerMasterGuadianTest(env: {val producerBL: ProducerBL; val topicBL: TopicBL}, topicModel: TopicModel) extends ProducerMasterGuardian(env) {
+class ProducerMasterGuadianTest(env: {val producerBL: ProducerBL; val topicBL: TopicBL}, topicModel: TopicModel) extends ProducerMasterGuardian(env, topicModel._id.get.stringify) {
 
   override val name: String = ProducerMasterGuadianTest.name
   override def preStart(): Unit = {
