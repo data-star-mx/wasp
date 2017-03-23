@@ -74,7 +74,8 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
         producerId -> WaspSystem.loggerActor.get
       } else {
         val producerClass = classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className))
-        producerId -> actorSystem.actorOf(Props(producerClass, ConfigBL, producerId), producer.name)
+        val producerActor = findOrCreateActor(Props(producerClass, ConfigBL, producerId), producer.name)
+        producerId -> producerActor
       }
     }).toMap
   }), WaspSystem.timeout.duration)
