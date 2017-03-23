@@ -32,18 +32,18 @@ object MasterGuardian {
     ??[Boolean](WaspSystem.masterActor, RestartPipegraphs)
   }
 
-  // TODO: configurable timeout & handle this better
-  lazy val consumer = try {
-      Await.result(actorSystem.actorSelection(ConsumersMasterGuardian.name).resolveOne(), 2 second)
-    } catch {
-      case e: Exception => actorSystem.actorOf(Props(new ConsumersMasterGuardian(ConfigBL, writers.SparkWriterFactoryDefault, KafkaReader)), ConsumersMasterGuardian.name)
-    }
-  //lazy val batchGuardian = try {
-//      Await.result(actorSystem.actorSelection(batch.BatchMasterGuardian.name).resolveOne(), 2 second)
-//    } catch {
-//      case e: Exception =>actorSystem.actorOf(Props(new batch.BatchMasterGuardian(ConfigBL, None, writers.SparkWriterFactoryDefault)), batch.BatchMasterGuardian.name)
-//    }
+  lazy val consumer = findOrCreateActor(Props(new ConsumersMasterGuardian(ConfigBL, writers.SparkWriterFactoryDefault, KafkaReader)), ConsumersMasterGuardian.name)
+  lazy val batchGuardian = findOrCreateActor(Props(new batch.BatchMasterGuardian(ConfigBL, None, writers.SparkWriterFactoryDefault)), batch.BatchMasterGuardian.name)
 
+  // TODO configurable timeout
+  def findOrCreateActor(props: Props, name: String): ActorRef = {
+    try {
+      Await.result(actorSystem.actorSelection(name).resolveOne(), 2 second)
+    } catch {
+      case e: Exception => actorSystem.actorOf(props, name)
+    }
+  }
+  
   private def ceilDayTime(time: Long): Long = {
 
     val cal = Calendar.getInstance()
@@ -58,17 +58,9 @@ object MasterGuardian {
 }
 
 class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: PipegraphBL; val batchJobBL: BatchJobBL; val batchSchedulerBL: BatchSchedulersBL; }, val classLoader: Option[ClassLoader] = None) extends ClusterAwareNodeGuardian {
-
   import MasterGuardian._
 
   lazy val logger = WaspLogger(this.getClass.getName)
-
-  lazy val batchGuardian = try {
-    println("************** try actorSelection")
-    Await.result(actorSystem.actorSelection(batch.BatchMasterGuardian.name).resolveOne(), 2 second)
-  } catch {
-    case e: Exception => println("**************** new BatchMasterGuardian"); actorSystem.actorOf(Props(new batch.BatchMasterGuardian(ConfigBL, classLoader, writers.SparkWriterFactoryDefault)), batch.BatchMasterGuardian.name);
-  }
 
   // TODO just for Class Loader debug.
   // logger.error("Framework ClassLoader"+this.getClass.getClassLoader.toString())
