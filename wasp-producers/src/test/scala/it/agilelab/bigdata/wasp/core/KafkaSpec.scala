@@ -88,9 +88,10 @@ class KafkaSpec extends FlatSpec with Matchers with BeforeAndAfterAll  with Scal
     val producerModel = ProducerModel(
       name = ProducerMasterGuadianTest.name,
       className = "it.agilelab.bigdata.wasp.core.ProducerNodeGuadianTest",
-      isActive = true,
+      id_topic = topicModel._id,
+      isRemote = false,
       _id = Some(BSONObjectID.generate),
-      id_topic = topicModel._id
+      isActive = true
     )
     env.producerBL.persist(producerModel)
 
