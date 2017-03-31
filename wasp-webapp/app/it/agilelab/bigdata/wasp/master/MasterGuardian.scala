@@ -4,6 +4,7 @@ import java.util.Calendar
 
 import akka.actor.{Actor, ActorRef, PoisonPill, Props, actorRef2Scala}
 import akka.contrib.pattern.DistributedPubSubExtension
+import akka.contrib.pattern.DistributedPubSubMediator.Subscribe
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import it.agilelab.bigdata.wasp.consumers._
@@ -17,6 +18,7 @@ import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.messages._
 import it.agilelab.bigdata.wasp.core.models.{BatchJobModel, PipegraphModel, ProducerModel}
+import it.agilelab.bigdata.wasp.producers.remote._
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,6 +26,8 @@ import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
 import scala.concurrent.{Await, Future, future}
 
 object MasterGuardian {
+  // get distributed publish-subscribe mediator
+  val mediator = DistributedPubSubExtension.get(WaspSystem.actorSystem).mediator
 
   if (WaspSystem.masterActor == null)
     WaspSystem.masterActor = actorSystem.actorOf(Props(new MasterGuardian(ConfigBL)))
@@ -77,6 +81,9 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
 
   // TODO just for Class Loader debug.
   // logger.error("Framework ClassLoader"+this.getClass.getClassLoader.toString())
+  
+  // subscribe to producers topic using distributed publish subscribe
+  mediator ! Subscribe(producersAkkaTopic, self)
 
   // all producers, whether they are local or remote
   def producers: Map[String, ActorRef] = localProducers ++ remoteProducers

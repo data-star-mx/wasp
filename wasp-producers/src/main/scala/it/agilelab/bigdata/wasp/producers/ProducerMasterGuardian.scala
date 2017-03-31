@@ -1,10 +1,12 @@
 package it.agilelab.bigdata.wasp.producers
 
 import akka.actor.{Actor, ActorRef, PoisonPill, Props}
+import akka.contrib.pattern.DistributedPubSubExtension
+import akka.contrib.pattern.DistributedPubSubMediator.Publish
 import akka.pattern.gracefulStop
 import akka.routing.BalancingPool
 import it.agilelab.bigdata.wasp.core.WaspSystem.{??, actorSystem, timeout}
-import it.agilelab.bigdata.wasp.core.bl.{TopicBL, ProducerBL}
+import it.agilelab.bigdata.wasp.core.bl.{ProducerBL, TopicBL}
 import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.kafka.CheckOrCreateTopic
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
@@ -12,6 +14,7 @@ import it.agilelab.bigdata.wasp.core.messages.AddRemoteProducer
 import it.agilelab.bigdata.wasp.core.models.{ProducerModel, TopicModel}
 import it.agilelab.bigdata.wasp.core.utils.ConfigManager
 import it.agilelab.bigdata.wasp.core.{WaspMessage, WaspSystem}
+import it.agilelab.bigdata.wasp.producers.remote._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

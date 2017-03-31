@@ -124,6 +124,7 @@ object Dependencies {
     val akkaHttpCore = "com.typesafe.akka" %% "akka-http-core-experimental" % AkkaStreams
     val akkaActor = "com.typesafe.akka" %% "akka-actor" % Akka
     val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % Akka
+    val akkaContrib = "com.typesafe.akka" %% "akka-contrib" % Akka
     val akkaRemote = "com.typesafe.akka" %% "akka-remote" % Akka
     val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % Akka
     val akkaCamel = "com.typesafe.akka" % "akka-camel_2.10" % Akka
@@ -205,6 +206,7 @@ object Dependencies {
                  akkaHttpCore,
                  akkaActor,
                  akkaCluster,
+                 akkaContrib,
                  akkaRemote,
                  akkaSlf4j,
                  akkaCamel)
