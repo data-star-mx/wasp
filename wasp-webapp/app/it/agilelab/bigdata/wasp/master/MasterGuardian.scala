@@ -169,8 +169,8 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
     case message: StartPipegraph           => call(sender(), message, onPipegraph(message.id, startPipegraph))
     case message: StopPipegraph            => call(sender(), message, onPipegraph(message.id, stopPipegraph))
     case RestartPipegraphs                 => call(sender(), RestartPipegraphs, onRestartPipegraphs())
-    case message: AddRemoteProducer        => call(sender(), message, onProducer(message.id, addRemoteProducer(sender(), _)))
-    case message: RemoveRemoteProducer     => call(sender(), message, onProducer(message.id, removeRemoteProducer(sender(), _)))
+    case message: AddRemoteProducer        => call(message.remoteProducer, message, onProducer(message.id, addRemoteProducer(message.remoteProducer, _))) // do not use sender() for actor ref: https://github.com/akka/akka/issues/17977
+    case message: RemoveRemoteProducer     => call(message.remoteProducer, message, onProducer(message.id, removeRemoteProducer(message.remoteProducer, _))) // do not use sender() for actor ref: https://github.com/akka/akka/issues/17977
     case message: StartProducer            => call(sender(), message, onProducer(message.id, startProducer))
     case message: StopProducer             => call(sender(), message, onProducer(message.id, stopProducer))
     case message: StartETL                 => call(sender(), message, onEtl(message.id, message.etlName, startEtl))
