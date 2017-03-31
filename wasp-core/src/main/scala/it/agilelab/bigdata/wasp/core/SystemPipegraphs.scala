@@ -62,6 +62,7 @@ private[wasp] object LoggerProducer {
 		id_topic = Some(loggerTopic._id.get),
 		isActive = false,
 		None,
+		isRemote = false,
 		Some(BSONObjectID.generate)
 	)
 }

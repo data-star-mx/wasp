@@ -34,7 +34,7 @@ trait ProducerBL {
 class ProducerBLImp(waspDB: WaspDB) extends  ProducerBL with BSONConversionHelper{
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  private def factory(p: ProducerModel) = new ProducerModel(p.name, p.className, p.id_topic, p.isActive, p.configuration, p._id)
+  private def factory(p: ProducerModel) = ProducerModel(p.name, p.className, p.id_topic, p.isActive, p.configuration, p.isRemote, p._id)
 
   def getByName(name: String): Future[Option[ProducerModel]] = {
     waspDB.getDocumentByField[ProducerModel]("name", new BSONString(name)).map(producer => {

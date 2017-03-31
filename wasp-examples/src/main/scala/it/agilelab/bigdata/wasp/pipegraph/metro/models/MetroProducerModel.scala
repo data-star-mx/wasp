@@ -13,11 +13,13 @@ object MetroProducerModel {
   /**
     * LOS ANGELES METRO TRACKING PRODUCER
     */
-  lazy val metroProducer = new ProducerModel(
-      "MetroProducer",
-      classOf[MetroProducer].getName(),
-      id_topic = Some(MetroTopicModel.metroTopic._id.get),
-      false,
-      None,
-      Some(BSONObjectID.generate))
+  lazy val metroProducer = ProducerModel(
+    "MetroProducer",
+    classOf[MetroProducer].getName,
+    Some(MetroTopicModel.metroTopic._id.get),
+    isActive = false,
+    None,
+    isRemote = false,
+    Some(BSONObjectID.generate)
+  )
 }
