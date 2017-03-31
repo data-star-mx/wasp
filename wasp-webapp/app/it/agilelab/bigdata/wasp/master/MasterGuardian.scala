@@ -15,6 +15,7 @@ import it.agilelab.bigdata.wasp.core.WaspSystem.{??, actorSystem, timeout}
 import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
+import it.agilelab.bigdata.wasp.core.messages._
 import it.agilelab.bigdata.wasp.core.models.{BatchJobModel, PipegraphModel, ProducerModel}
 
 import scala.collection.mutable

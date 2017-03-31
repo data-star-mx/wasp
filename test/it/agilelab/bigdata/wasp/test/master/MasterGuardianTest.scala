@@ -3,10 +3,11 @@ package it.agilelab.bigdata.wasp.test.master
 import java.util.StringTokenizer
 
 import akka.actor.Props
-import it.agilelab.bigdata.wasp.core.{utils, WaspSystem}
+import it.agilelab.bigdata.wasp.core.{WaspSystem, utils}
 import it.agilelab.bigdata.wasp.core.WaspSystem.{??, actorSystem, timeout}
 import it.agilelab.bigdata.wasp.core.bl.ConfigBL
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
+import it.agilelab.bigdata.wasp.core.messages.{StartPipegraph, StartProducer, StopPipegraph, StopProducer}
 import it.agilelab.bigdata.wasp.core.models._
 import it.agilelab.bigdata.wasp.core.utils.WaspDB
 import it.agilelab.bigdata.wasp.master._

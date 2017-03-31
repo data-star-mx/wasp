@@ -8,6 +8,7 @@ import it.agilelab.bigdata.wasp.core.bl.{TopicBL, ProducerBL}
 import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.kafka.CheckOrCreateTopic
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
+import it.agilelab.bigdata.wasp.core.messages.AddRemoteProducer
 import it.agilelab.bigdata.wasp.core.models.{ProducerModel, TopicModel}
 import it.agilelab.bigdata.wasp.core.utils.ConfigManager
 import it.agilelab.bigdata.wasp.core.{WaspMessage, WaspSystem}

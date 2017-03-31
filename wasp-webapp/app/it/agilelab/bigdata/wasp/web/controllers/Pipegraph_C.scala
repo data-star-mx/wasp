@@ -5,9 +5,9 @@ import akka.util.Timeout
 import it.agilelab.bigdata.wasp.core.WaspSystem.masterActor
 import it.agilelab.bigdata.wasp.core.bl.ConfigBL
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
+import it.agilelab.bigdata.wasp.core.messages.{StartPipegraph, StopPipegraph}
 import it.agilelab.bigdata.wasp.core.models._
-import it.agilelab.bigdata.wasp.core.utils.{BSONFormats}
-import it.agilelab.bigdata.wasp.master.{StartPipegraph, StopPipegraph}
+import it.agilelab.bigdata.wasp.core.utils.BSONFormats
 import play.api.data.Forms._
 import play.api.data._
 import play.api.libs.json.Json
