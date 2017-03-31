@@ -283,23 +283,23 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   }
   
   private def addRemoteProducer(producerActor: ActorRef, producerModel: ProducerModel): Future[Either[String, String]] = {
-    val producerName = producerModel.name
-    if (remoteProducers.isDefinedAt(producerName)) { // already added
-      future { Right(s"Remote producer $producerName ($producerActor) not added; already present.") }
+    val producerId = producerModel._id.get.stringify
+    if (remoteProducers.isDefinedAt(producerId)) { // already added
+      future { Right(s"Remote producer $producerId ($producerActor) not added; already present.") }
     } else { // add to remote producers
-      remoteProducers += producerName -> producerActor
-      future { Left(s"Remote producer $producerName ($producerActor) added.") }
+      remoteProducers += producerId -> producerActor
+      future { Left(s"Remote producer $producerId ($producerActor) added.") }
     }
   }
   
   private def removeRemoteProducer(producerActor: ActorRef, producerModel: ProducerModel): Future[Either[String, String]] = {
-    val producerName = producerModel.name
-    if (remoteProducers.isDefinedAt(producerName)) { // found, remove
-      val producerActor = remoteProducers(producerName)
-      remoteProducers.remove(producerName)
-      future { Left(s"Remote producer $producerName ($producerActor) removed.") }
+    val producerId = producerModel._id.get.stringify
+    if (remoteProducers.isDefinedAt(producerId)) { // found, remove
+      val producerActor = remoteProducers(producerId)
+      remoteProducers.remove(producerId)
+      future { Left(s"Remote producer $producerId ($producerActor) removed.") }
     } else { // not found
-      future { Right(s"Remote producer $producerName not found; either it was never added or it has already been removed.") }
+      future { Right(s"Remote producer $producerId not found; either it was never added or it has already been removed.") }
     }
   }
 
