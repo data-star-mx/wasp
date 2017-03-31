@@ -2,9 +2,8 @@ package it.agilelab.bigdata.wasp.master
 
 import java.util.Calendar
 
-import akka.actor.{Actor, ActorRef, ActorSelection, PoisonPill, Props, actorRef2Scala}
-import akka.contrib.pattern.DistributedPubSubExtension
 import akka.actor.{Actor, ActorRef, PoisonPill, Props, actorRef2Scala}
+import akka.contrib.pattern.DistributedPubSubExtension
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import it.agilelab.bigdata.wasp.consumers._
@@ -35,15 +34,25 @@ object MasterGuardian {
     ??[Boolean](WaspSystem.masterActor, RestartPipegraphs)
   }
 
-  lazy val consumer = findOrCreateActor(Props(new ConsumersMasterGuardian(ConfigBL, writers.SparkWriterFactoryDefault, KafkaReader)), ConsumersMasterGuardian.name)
-  lazy val batchGuardian = findOrCreateActor(Props(new batch.BatchMasterGuardian(ConfigBL, None, writers.SparkWriterFactoryDefault)), batch.BatchMasterGuardian.name)
+  lazy val consumer = findLocallyOrCreateActor(Props(new ConsumersMasterGuardian(ConfigBL, writers.SparkWriterFactoryDefault, KafkaReader)), ConsumersMasterGuardian.name)
+  lazy val batchGuardian = findLocallyOrCreateActor(Props(new batch.BatchMasterGuardian(ConfigBL, None, writers.SparkWriterFactoryDefault)), batch.BatchMasterGuardian.name)
 
   // TODO configurable timeout
-  def findOrCreateActor(props: Props, name: String): ActorRef = {
+  def findLocallyOrCreateActor(props: Props, name: String): ActorRef = {
     try {
-      Await.result(actorSystem.actorSelection(name).resolveOne(), 2 second)
+      val actorPath = "/user/" + name
+      val actorSelection = actorSystem.actorSelection(actorPath)
+      println(s"Attempting actor selection: $actorSelection")
+      val actor = Await.result(actorSelection.resolveOne(), 2 second)
+      println(s"Selected actor: $actor")
+      actor
     } catch {
-      case e: Exception => actorSystem.actorOf(props, name)
+      case e: Exception => {
+        println("Failed actor selection! Creating actor.")
+        val actor = actorSystem.actorOf(props, name)
+        println(s"Created actor: $actor")
+        actor
+      }
     }
   }
   
