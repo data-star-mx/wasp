@@ -16,6 +16,7 @@ import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.{BatchJobModel, PipegraphModel, ProducerModel}
 import it.agilelab.bigdata.wasp.producers.InternalLogProducerGuardian
 
+import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationInt, MILLISECONDS}
 import scala.concurrent.{Await, Future, future}
@@ -65,20 +66,32 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   // TODO just for Class Loader debug.
   // logger.error("Framework ClassLoader"+this.getClass.getClassLoader.toString())
 
-  val producers: Map[String, ActorRef] = Await.result(
-  env.producerBL.getAll.map((producers: List[ProducerModel]) => {
-    producers.map(producer => {
-      val producerId = producer._id.get.stringify
-      if (producer.name == "LoggerProducer") { // logger producer is special
-        // do not instantiate, but get the already existing one from WaspSystem
-        producerId -> WaspSystem.loggerActor.get
-      } else {
-        val producerClass = classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className))
-        val producerActor = findOrCreateActor(Props(producerClass, ConfigBL, producerId), producer.name)
-        producerId -> producerActor
-      }
-    }).toMap
-  }), WaspSystem.timeout.duration)
+  // all producers, whether they are local or remote
+  def producers: Map[String, ActorRef] = localProducers ++ remoteProducers
+  
+  // local producers, which run in the same JVM as the MasterGuardian (those with isRemote = false)
+  val localProducers: Map[String, ActorRef] = {
+    val localProducersFuture = env.producerBL
+      .getAll // grab all producers
+      .map(_.filterNot(_.isRemote)) // filter only local ones
+      .map((producers: List[ProducerModel]) => { // instantiate
+        producers.map(producer => {
+          val producerId = producer._id.get.stringify
+          if (producer.name == "LoggerProducer") { // logger producer is special
+            producerId -> WaspSystem.loggerActor.get // do not instantiate, but get the already existing one from WaspSystem
+          } else {
+            val producerClass = classLoader.map(cl => cl.loadClass(producer.className)).getOrElse(Class.forName(producer.className))
+            val producerActor = actorSystem.actorOf(Props(producerClass, ConfigBL, producerId), producer.name)
+            producerId -> producerActor
+          }
+        }).toMap
+      })
+    
+    Await.result(localProducersFuture, WaspSystem.timeout.duration)
+  }
+  
+  // remote producers, which run in a different JVM than the MasterGuardian (those with isRemote = true)
+  val remoteProducers: mutable.Map[String, ActorRef] = mutable.Map.empty[String, ActorRef]
 
   // on startup not-system pipegraphs and associated consumers are deactivated
   val result1 = Await.result(env.pipegraphBL.getSystemPipegraphs(false).flatMap {
