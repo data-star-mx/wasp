@@ -288,8 +288,7 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
       future { Right(s"Remote producer $producerName not added; already present.") }
     } else { // add to remote producers
       remoteProducers += producerName -> producerActor
-      // initialise producer actor if not already present
-      startProducer(producerModel)
+      future { Left(s"Remote producer $producerName ($producerActor) added.") }
     }
   }
   
