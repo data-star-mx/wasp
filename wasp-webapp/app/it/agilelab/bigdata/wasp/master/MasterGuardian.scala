@@ -349,6 +349,7 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   override def postStop() {
     WaspSystem.elasticAdminActor ! PoisonPill
     WaspSystem.getKafkaAdminActor ! PoisonPill
+    WaspSystem.solrAdminActor ! PoisonPill
     consumer ! PoisonPill
     batchGuardian ! PoisonPill
 
