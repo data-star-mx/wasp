@@ -2,10 +2,13 @@ package it.agilelab.bigdata.wasp.master
 
 import java.util.Calendar
 
+import akka.actor.{Actor, ActorRef, ActorSelection, PoisonPill, Props, actorRef2Scala}
+import akka.contrib.pattern.DistributedPubSubExtension
 import akka.actor.{Actor, ActorRef, PoisonPill, Props, actorRef2Scala}
 import akka.pattern.ask
 import com.typesafe.config.ConfigFactory
 import it.agilelab.bigdata.wasp.consumers._
+import it.agilelab.bigdata.wasp.consumers.batch.BatchJobProcessedMessage
 import it.agilelab.bigdata.wasp.consumers.consumers.{ConsumersMasterGuardian, RestartConsumers}
 import it.agilelab.bigdata.wasp.consumers.readers.KafkaReader
 import it.agilelab.bigdata.wasp.core.WaspSystem
@@ -14,7 +17,6 @@ import it.agilelab.bigdata.wasp.core.bl._
 import it.agilelab.bigdata.wasp.core.cluster.ClusterAwareNodeGuardian
 import it.agilelab.bigdata.wasp.core.logging.WaspLogger
 import it.agilelab.bigdata.wasp.core.models.{BatchJobModel, PipegraphModel, ProducerModel}
-import it.agilelab.bigdata.wasp.producers.InternalLogProducerGuardian
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -146,20 +148,20 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
 
   // TODO try without sender parenthesis
   def initialized: Actor.Receive = {
-    //case message: RemovePipegraph => call(message, onPipegraph(message.id, removePipegraph))
-    case message: StartPipegraph    => call(sender(), message, onPipegraph(message.id, startPipegraph))
-    case message: StopPipegraph     => call(sender(), message, onPipegraph(message.id, stopPipegraph))
-    case RestartPipegraphs          => call(sender(), RestartPipegraphs, onRestartPipegraphs())
-    case message: StartProducer     => call(sender(), message, onProducer(message.id, startProducer))
-    case message: StopProducer      => call(sender(), message, onProducer(message.id, stopProducer))
-    case message: StartETL          => call(sender(), message, onEtl(message.id, message.etlName, startEtl))
-    case message: StopETL           => call(sender(), message, onEtl(message.id, message.etlName, stopEtl))
-    case message: StartBatchJob     => call(sender(), message, onBatchJob(message.id, startBatchJob))
-    case message: StartPendingBatchJobs => call(sender(), message, startPendingBatchJobs())
-    case message: batch.BatchJobProcessedMessage => //TODO gestione batchJob finito?
-    //case message: Any           => logger.error("unknown message: " + message)
+    //case message: RemovePipegraph          => call(message, onPipegraph(message.id, removePipegraph))
+    case message: StartPipegraph           => call(sender(), message, onPipegraph(message.id, startPipegraph))
+    case message: StopPipegraph            => call(sender(), message, onPipegraph(message.id, stopPipegraph))
+    case RestartPipegraphs                 => call(sender(), RestartPipegraphs, onRestartPipegraphs())
     case message: AddRemoteProducer        => call(sender(), message, onProducer(message.id, addRemoteProducer(sender(), _)))
     case message: RemoveRemoteProducer     => call(sender(), message, onProducer(message.id, removeRemoteProducer(sender(), _)))
+    case message: StartProducer            => call(sender(), message, onProducer(message.id, startProducer))
+    case message: StopProducer             => call(sender(), message, onProducer(message.id, stopProducer))
+    case message: StartETL                 => call(sender(), message, onEtl(message.id, message.etlName, startEtl))
+    case message: StopETL                  => call(sender(), message, onEtl(message.id, message.etlName, stopEtl))
+    case message: StartBatchJob            => call(sender(), message, onBatchJob(message.id, startBatchJob))
+    case message: StartPendingBatchJobs    => call(sender(), message, startPendingBatchJobs())
+    case message: BatchJobProcessedMessage => //TODO gestione batchJob finito?
+    //case message: Any                     => logger.error("unknown message: " + message)
   }
 
   private def call[T <: MasterGuardianMessage](sender: ActorRef, message: T, future: Future[Either[String, String]]) = {
@@ -287,30 +289,25 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   private def startProducer(producer: ProducerModel): Future[Either[String, String]] = {
     // initialise producer actor if not already present
     if (producers.isDefinedAt(producer._id.get.stringify)) {
-      if (! ??[Boolean](producers(producer._id.get.stringify), it.agilelab.bigdata.wasp.producers.StartProducer))
-        future {
-          Right(s"Producer '${producer.name}' not started")
-        }
-      else
-        future {
-          Left(s"Producer '${producer.name}' started")
-        }
-
-    } else {
-      future {
-        Right(s"Producer '${producer.name}' not exists")
+      if (! ??[Boolean](producers(producer._id.get.stringify), it.agilelab.bigdata.wasp.producers.StartProducer)) {
+        future { Right(s"Producer '${producer.name}' not started") }
+      } else {
+        future { Left(s"Producer '${producer.name}' started") }
       }
+    } else {
+      future { Right(s"Producer '${producer.name}' not exists") }
     }
 
   }
 
   private def stopProducer(producer: ProducerModel): Future[Either[String, String]] = {
-    if (!producers.isDefinedAt(producer._id.get.stringify))
+    if (!producers.isDefinedAt(producer._id.get.stringify)) {
       future { Right("Producer '" + producer.name + "' not initializated") }
-    else if (! ??[Boolean](producers(producer._id.get.stringify), it.agilelab.bigdata.wasp.producers.StopProducer))
+    } else if (! ??[Boolean](producers(producer._id.get.stringify), it.agilelab.bigdata.wasp.producers.StopProducer)) {
       future { Right("Producer '" + producer.name + "' not stopped") }
-    else
+    } else {
       future { Left("Producer '" + producer.name + "' stopped") }
+    }
   }
 
   private def startBatchJob(batchJob: BatchJobModel): Future[Either[String, String]] = {
@@ -319,13 +316,9 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
     val jobFut = batchGuardian ? batch.StartBatchJobMessage(batchJob._id.get.stringify)
     val jobRes = Await.result(jobFut, WaspSystem.timeout.duration).asInstanceOf[batch.BatchJobResult]
     if (jobRes.result) {
-      future {
-        Left("Batch job '" + batchJob.name + "' queued or processing")
-      }
+      future { Left("Batch job '" + batchJob.name + "' queued or processing") }
     } else {
-      future {
-        Right("Batch job '" + batchJob.name + "' not processing")
-      }
+      future { Right("Batch job '" + batchJob.name + "' not processing") }
     }
   }
 
