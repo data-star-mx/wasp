@@ -17,6 +17,8 @@ case class StartProducer(override val id:String) extends ProducerMessage(id)
 case class StopProducer(override val id:String) extends ProducerMessage(id)
 case class StartETL(override val id:String, override val etlName: String) extends ETLMessage(id, etlName)
 case class StopETL(override val id:String, override val etlName: String) extends ETLMessage(id, etlName)
+case class AddRemoteProducer(override val id: String) extends ProducerMessage(id)
+case class RemoveRemoteProducer(override val id: String) extends ProducerMessage(id)
 
 case class StartBatchJob(override val id:String) extends BatchJobMessage(id)
 case class StartPendingBatchJobs(override val id: String) extends MasterGuardianMessage(id)

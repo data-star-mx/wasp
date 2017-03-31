@@ -158,6 +158,8 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
     case message: StartPendingBatchJobs => call(sender(), message, startPendingBatchJobs())
     case message: batch.BatchJobProcessedMessage => //TODO gestione batchJob finito?
     //case message: Any           => logger.error("unknown message: " + message)
+    case message: AddRemoteProducer        => call(sender(), message, onProducer(message.id, addRemoteProducer(sender(), _)))
+    case message: RemoveRemoteProducer     => call(sender(), message, onProducer(message.id, removeRemoteProducer(sender(), _)))
   }
 
   private def call[T <: MasterGuardianMessage](sender: ActorRef, message: T, future: Future[Either[String, String]]) = {
@@ -259,6 +261,27 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
   //TODO  implementare questa parte
   private def stopEtl(pipegraph: PipegraphModel, etlName: String): Future[Either[String, String]] = {
    future { Left("ETL '" + etlName + "' stopped") }
+  }
+  
+  private def addRemoteProducer(producerActor: ActorRef, producerModel: ProducerModel): Future[Either[String, String]] = {
+    val producerName = producerModel.name
+    if (remoteProducers.isDefinedAt(producerName)) { // already added
+      future { Right(s"Remote producer $producerName not added; already present.") }
+    } else { // add to remote producers
+      remoteProducers += producerName -> producerActor
+      // initialise producer actor if not already present
+      startProducer(producerModel)
+    }
+  }
+  
+  private def removeRemoteProducer(producerActor: ActorRef, producerModel: ProducerModel): Future[Either[String, String]] = {
+    val producerName = producerModel.name
+    if (remoteProducers.isDefinedAt(producerName)) { // found, remove
+      remoteProducers.remove(producerName)
+      future { Left(s"Remote producer $producerName removed.") }
+    } else { // not found
+      future { Right(s"Remote producer $producerName not found; either it was never added or it has already been removed.") }
+    }
   }
 
   private def startProducer(producer: ProducerModel): Future[Either[String, String]] = {
