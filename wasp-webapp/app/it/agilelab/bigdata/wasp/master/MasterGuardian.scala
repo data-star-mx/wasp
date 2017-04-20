@@ -286,8 +286,9 @@ class MasterGuardian(env: {val producerBL: ProducerBL; val pipegraphBL: Pipegrap
     val producerId = producerModel._id.get.stringify
     if (remoteProducers.isDefinedAt(producerId)) { // already added
       future { Right(s"Remote producer $producerId ($producerActor) not added; already present.") }
-    } else { // add to remote producers
+    } else { // add to remote producers & start if needed
       remoteProducers += producerId -> producerActor
+      if (producerModel.isActive) self ! StartProducer(producerId)
       future { Left(s"Remote producer $producerId ($producerActor) added.") }
     }
   }
