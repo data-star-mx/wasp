@@ -44,6 +44,9 @@ WASP is a big data framework that allows you to not waste time with devops archi
 - etc.
 
 
+The WASP platform has been certified by [Confluent](http://confluent.io/).
+
+
 Background
 -------------
 
