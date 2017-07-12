@@ -71,6 +71,11 @@ See [Docker Swarm (for deployment)](docker-swarm/README.md) for details. Please 
 
 For development purposes, WASP comes with two ways to handle the service dependencies, both leveraging docker-compose: the full one where each service is instantiated and the light one assuming that a Hadoop Cluster is available. See [Docker (for development)](docker/README.md) for details.
 
+WASP Plugins
+-------------
+WASP has a plugin architecture and can embed several components.
+Plugins:
+ - [WASP-Proxy](https://github.com/agile-lab-dev/wasp-proxy)  -  Powered By Confluent
 
 Glossary
 -------------
